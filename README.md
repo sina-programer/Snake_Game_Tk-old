@@ -21,6 +21,6 @@ This is snake game with Tkinter in python!
 - [sina.programer](https://www.instagram.com/sina.programer) in instagram
 
 ## See Also:
-- [Calculator PyQt5](https://github.com/sina-programer/Calculator_PyQt5)
-- [Calculator Tk](https://github.com/sina-programer/Calculator_Tk)
-- [BMI Calculator](https://github.com/sina-programer/BMI_Calculator)
+- [X Polygon](https://github.com/sina-programer/X_Polygon)
+- [Turtle Shapes](https://github.com/sina-programer/Turtle_Shapes)
+- [Background Changer](https://github.com/sina-programer/Background_Changer)
