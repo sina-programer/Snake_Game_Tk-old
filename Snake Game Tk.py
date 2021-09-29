@@ -27,7 +27,7 @@ class Snake(PlayComponent):
             'right': (15, 0)
             }
         self.direction = 'stop'
-        self.segments = []
+        
         self.size = 15
         item = canvas.create_rectangle(x-self.size/2,
                                        y-self.size/2,
@@ -48,7 +48,7 @@ class Snake(PlayComponent):
     
     def check_inside(self):
         coords = self.position()
-        print(coords)
+
         if coords[0] < 2.5:
             super().move(500, 0)
         elif coords[2] > 497.5:
