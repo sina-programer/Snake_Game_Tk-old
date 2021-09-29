@@ -15,7 +15,7 @@ class PlayComponent:
     
     def delete(self):
         self.canvas.delete(self.item)
-
+        
 
 class Snake(PlayComponent):
     def __init__(self, canvas, x, y):
@@ -27,7 +27,7 @@ class Snake(PlayComponent):
             'right': (15, 0)
             }
         self.direction = 'stop'
-        
+        self.segments = []
         self.size = 15
         item = canvas.create_rectangle(x-self.size/2,
                                        y-self.size/2,
@@ -48,28 +48,28 @@ class Snake(PlayComponent):
     
     def check_inside(self):
         coords = self.position()
-        
-        if coords[0] < 2.5 and self.direction == 'left':
-            super().move(500, 0)
-        elif coords[2] > 497.5 and self.direction == 'right':
-            super().move(-500, 0)
+
+        if coords[0] <= 0 and self.direction == 'left':
+            super().move(525, 0)
+        elif coords[2] >= 525 and self.direction == 'right':
+            super().move(-525, 0)
             
-        if coords[1] < 2.5 and self.direction == 'up':
-            super().move(0, 500)
-        elif coords[3] > 497.5 and self.direction == 'down':
-            super().move(0, -500)
-    
+        if coords[1] <= 0 and self.direction == 'up':
+            super().move(0, 525)
+        elif coords[3] >= 525 and self.direction == 'down':
+            super().move(0, -525)
+            
     
 class Game(Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
         
         self.score = 0
-        self.width = 500
-        self.height = 500
+        self.width = 525
+        self.height = 525
         self.canvas = Canvas(self, bg='lightblue', width=self.width, height=self.height)
         self.canvas.pack()
-        self.pack()
+        self.pack(pady=5)
         
         self.snake = Snake(self.canvas, self.width/2, self.height/2)
         
@@ -80,8 +80,8 @@ class Game(Frame):
         self.canvas.bind('<Down>', lambda _: self.snake.set_direction('down'))
         self.canvas.bind('<Escape>', lambda _: self.snake.set_direction('stop'))
                 
-        snake_move_thread = Thread(target=self.game_loop)
-        snake_move_thread.start()
+        main_thread = Thread(target=self.game_loop)
+        main_thread.start()
 
     def game_loop(self):
         while True:
@@ -92,7 +92,7 @@ class Game(Frame):
 if __name__ == "__main__":
     root = Tk()
     root.title('Snake Game')
-    root.geometry('500x500+450+150')
+    root.geometry('540x540+440+130')
     root.iconbitmap('Files/icon.ico')
     
     game = Game(root)
