@@ -48,15 +48,15 @@ class Snake(PlayComponent):
     
     def check_inside(self):
         coords = self.position()
-
-        if coords[0] < 2.5:
+        
+        if coords[0] < 2.5 and self.direction == 'left':
             super().move(500, 0)
-        elif coords[2] > 497.5:
+        elif coords[2] > 497.5 and self.direction == 'right':
             super().move(-500, 0)
             
-        if coords[1] < 2.5:
+        if coords[1] < 2.5 and self.direction == 'up':
             super().move(0, 500)
-        elif coords[3] > 497.5:
+        elif coords[3] > 497.5 and self.direction == 'down':
             super().move(0, -500)
     
     
