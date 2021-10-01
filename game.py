@@ -34,6 +34,14 @@ class Game:
 
     def key_handler(self):
         key = pygame.key.get_pressed()
+        move = 5
+        # and self.snake.top != self.screen.get_height() and self.snake.left != self.screen.get_width()
 
-        if key[pygame.K_LEFT]:
-            self.snake.move_ip(0, 10)
+        if key[pygame.K_LEFT] and self.snake.left != 0:
+            self.snake.move_ip(-move, 0)
+        elif key[pygame.K_RIGHT] and self.snake.left != (self.screen.get_width() - self.snake.width):
+            self.snake.move_ip(move, 0)
+        elif key[pygame.K_UP] and self.snake.top != 0:
+            self.snake.move_ip(0, -move)
+        elif key[pygame.K_DOWN] and self.snake.top != (self.screen.get_height() - self.snake.height):
+            self.snake.move_ip(0, move)
