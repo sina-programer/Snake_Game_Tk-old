@@ -36,6 +36,7 @@ class Game(tk.Frame):
         Thread(target=self.game_loop).start()
 
     def game_loop(self):
+        delay = .15-(self.level/100)*2
         while True:
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
@@ -45,7 +46,7 @@ class Game(tk.Frame):
             self.snake.move_head()
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
-            sleep(.15)
+            sleep(delay)
 
 
 if __name__ == "__main__":
