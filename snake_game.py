@@ -34,7 +34,7 @@ class Game(tk.Frame):
 
     def game_loop(self):
         while True:
-            if self.snake.get_position(self.snake.snake_head) == self.bait.get_position(self.bait.snake_head):
+            if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
                 self.score.set(self.score.get() + 1)
                 self.snake.add_body(len(self.snake.body))
