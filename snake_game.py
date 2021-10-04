@@ -1,6 +1,7 @@
 from time import sleep
 from threading import Thread
 import tkinter as tk
+from tkinter import simpledialog
 from snake import Snake
 from bait import Bait
 
@@ -20,8 +21,10 @@ class Game(tk.Frame):
         tk.Label(master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
         tk.Label(master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
 
+        self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)')
+
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
-        self.bait = Bait(self.canvas)
+        self.bait = Bait(self.canvas, self.level)
 
         self.canvas.focus_force()
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
