@@ -1,6 +1,3 @@
-from random import choice
-
-
 class Snake:
     def __init__(self, canvas, x, y):
         self.aims = {
@@ -107,10 +104,10 @@ class Snake:
         x, y = self.history_of_move[-1]
         p = 8
         p = p * body_number
-        colors = ('red', 'blue', 'green', 'yellow')
-        random_color = choice(colors)
-        self.body.append(
-            self.canvas.create_rectangle(x - p, y - p, self.size + x - p, self.size + y - p, fill=random_color))
+        self.body.append(self.canvas.create_rectangle(x - p,
+                                                      y - p, self.size + x - p,
+                                                      self.size + y - p, fill='gray')
+                         )
 
     def set_direction(self, direction):
         if self.direction != direction:
