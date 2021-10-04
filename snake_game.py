@@ -42,7 +42,7 @@ class Game(tk.Frame):
                 if len(self.snake.body) >= 2:
                     print(self.snake.get_position(self.snake.body[0]), self.snake.get_position(self.snake.body[1]))
 
-            self.snake.move()
+            self.snake.move_head()
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
             sleep(.15)

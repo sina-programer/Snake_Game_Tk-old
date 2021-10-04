@@ -1,5 +1,6 @@
 import random
 
+
 class Bait:
     def __init__(self, canvas):
         self.x = random.randrange(10, 520, 15) - 2.5
@@ -12,7 +13,7 @@ class Bait:
                                             self.x + self.size / 2,
                                             self.y + self.size / 2,
                                             fill='green')
-        
+
     def move(self):
         self.canvas.move(self.item, -self.x, -self.y)
         self.x = random.randrange(10, 520, 15) - 2.5
