@@ -100,9 +100,15 @@ class Snake(PlayComponent):
         if self.history_of_move[-1] != position:
             self.history_of_move.append(position)
 
-    def add_body(self):
+    def delete_unuse_move_history(self, history_of_move, body_number):
+        history_of_move_copy = history_of_move.copy()
+        history_of_move.clear()
+        history_of_move.extend(history_of_move_copy[-body_number:])
+
+    def add_body(self,body_number):
         x, y = self.history_of_move[-1]
         p = 8
+        p=p * body_number
         self.body.append(self.canvas.create_rectangle(x - p, y - p, self.size + x - p, self.size + y - p, fill='red'))
 
     def set_direction(self, direction):
@@ -155,11 +161,12 @@ class Game(Frame):
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position(self.bait.snake_head):
                 self.bait.move()
                 self.score.set(self.score.get() + 1)
-                self.snake.add_body()
+                self.snake.add_body(len(self.snake.body))
                 print('length', len(self.snake.body))
                 print(self.snake.get_position(self.snake.body[0]))
 
             self.snake.move()
+            self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
             sleep(.15)
 
