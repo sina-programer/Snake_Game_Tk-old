@@ -1,4 +1,5 @@
 from base import PlayComponent
+from random import choice
 
 
 class Snake(PlayComponent):
@@ -35,13 +36,17 @@ class Snake(PlayComponent):
     def delete_unuse_move_history(self, history_of_move, body_number):
         history_of_move_copy = history_of_move.copy()
         history_of_move.clear()
-        history_of_move.extend(history_of_move_copy[-body_number:])
+        history_of_move.extend(history_of_move_copy[(-body_number - 1):])
 
     def add_body(self, body_number):
         x, y = self.history_of_move[-1]
         p = 8
         p = p * body_number
-        self.body.append(self.canvas.create_rectangle(x - p, y - p, self.size + x - p, self.size + y - p, fill='red'))
+        colors = ('red', 'blue', 'green', 'yellow')
+        random_color = choice(colors)
+        print(random_color)
+        self.body.append(
+            self.canvas.create_rectangle(x - p, y - p, self.size + x - p, self.size + y - p, fill=random_color))
 
     def set_direction(self, direction):
         if self.direction != direction:
