@@ -16,17 +16,19 @@ class Game(tk.Frame):
         self.height = 525
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
         self.canvas.pack()
+        self.canvas.focus_force()
 
         self.pack(side=tk.BOTTOM, pady=5)
         tk.Label(master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
         tk.Label(master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
-
+        
         self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)')
+        tk.Label(master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
+        tk.Label(master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
 
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
         self.bait = Bait(self.canvas, self.level)
 
-        self.canvas.focus_force()
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
         self.canvas.bind('<Right>', lambda _: self.snake.set_direction('right'))
         self.canvas.bind('<Up>', lambda _: self.snake.set_direction('up'))
