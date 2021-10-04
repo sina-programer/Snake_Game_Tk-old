@@ -10,6 +10,7 @@ class Snake:
             'left': (-15, 0),
             'right': (15, 0)
         }
+        self.last_aim = None
         self.direction = 'stop'
         self.size = 15
         snake_head = canvas.create_rectangle(x - self.size / 2,
@@ -24,10 +25,31 @@ class Snake:
 
     def move_head(self):
         self.check_inside()
-        aim = self.aims.get(self.direction)
+        aim = self.aims[self.direction]
         if aim is not None:
-            self.move(*aim)
-            self.move_body(self.body, self.history_of_move, aim)
+            if self.check_aim(self.aims, aim, self.last_aim):
+                self.last_aim = aim
+                self.move(*aim)
+                self.move_body(self.body, self.history_of_move, aim)
+            else:
+                self.move(*self.last_aim)
+                self.move_body(self.body, self.history_of_move, self.last_aim)
+
+    @staticmethod
+    def check_aim(aims, aim, last_aim):
+        if aim == aims['up']:
+            if last_aim != aims['down']:
+                return True
+        elif aim == aims['down']:
+            if last_aim != aims['up']:
+                return True
+        elif aim == aims['right']:
+            if last_aim != aims['left']:
+                return True
+        elif aim == aims['left']:
+            if last_aim != aims['right']:
+                return True
+        return False
 
     def move(self, x, y):
         self.canvas.move(self.snake_head, x, y)

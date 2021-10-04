@@ -38,9 +38,6 @@ class Game(tk.Frame):
                 self.bait.move()
                 self.score.set(self.score.get() + 1)
                 self.snake.add_body(len(self.snake.body))
-                print('length', len(self.snake.body))
-                if len(self.snake.body) >= 2:
-                    print(self.snake.get_position(self.snake.body[0]), self.snake.get_position(self.snake.body[1]))
 
             self.snake.move_head()
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
