@@ -18,19 +18,22 @@ class PlayComponent:
 
         for i in range(len(body)):
             first_position = self.get_position(body[i])  # a body position
-            next_position = self.get_next_position(snake_history_of_move, (first_position[0], first_position[1]))
+            next_position = self.get_next_position(snake_history_of_move, (first_position[0], first_position[1]), i)
             final_position = (next_position[0] - first_position[0], next_position[1] - first_position[1])
-            self.canvas.move(body[i], *final_position)
+            self.canvas.move(body[i], final_position[0], final_position[1])
 
     @staticmethod
-    def get_next_position(snake_history_of_move, position):
-        is_found = False
+    def get_next_position(snake_history_of_move, position, body_index):
+        index = 0
+        found_head_position = None
         for p in snake_history_of_move:
-            if is_found:
-                return p
+            if found_head_position:
+                index += 1
+                if found_head_position == index:
+                    return p
             if position == p:
-                is_found = True
-        return snake_history_of_move[-1]
+                found_head_position = body_index
+        return snake_history_of_move[-body_index+1]
 
     def get_coords(self):
         return self.canvas.coords(self.snake_head)
