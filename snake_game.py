@@ -1,7 +1,8 @@
 from time import sleep
 from threading import Thread
 import tkinter as tk
-from game_things import Bait, Snake
+from snake import Snake
+from bait import Bait
 
 
 class Game(tk.Frame):
