@@ -73,15 +73,15 @@ class Snake:
     @staticmethod
     def get_next_position(snake_history_of_move, position, body_index):
         index = 0
-        found_head_position = None
-        for p in snake_history_of_move:
-            if found_head_position:
+        found_head_position = False
+        for p in reversed(snake_history_of_move):
+            if found_head_position is not None:
                 index += 1
-                if found_head_position == index:
+                if body_index == index:
                     return p
-            if position == p:
-                found_head_position = body_index
-        return snake_history_of_move[-body_index + 1]
+            elif position == p:
+                found_head_position = True
+        return snake_history_of_move[-(body_index + 1)]
 
     def get_coords(self):
         return self.canvas.coords(self.snake_head)
@@ -109,7 +109,6 @@ class Snake:
         p = p * body_number
         colors = ('red', 'blue', 'green', 'yellow')
         random_color = choice(colors)
-        print(random_color)
         self.body.append(
             self.canvas.create_rectangle(x - p, y - p, self.size + x - p, self.size + y - p, fill=random_color))
 
