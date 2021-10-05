@@ -1,5 +1,6 @@
 class Snake:
     def __init__(self, canvas, x, y):
+        self.canvas = canvas
         self.aims = {
             'stop': None,
             'up': (0, -15),
@@ -7,18 +8,41 @@ class Snake:
             'left': (-15, 0),
             'right': (15, 0)
         }
-        self.last_aim = None
-        self.direction = 'stop'
         self.size = 15
-        snake_head = canvas.create_rectangle(x - self.size / 2,
-                                             y - self.size / 2,
-                                             x + self.size / 2,
-                                             y + self.size / 2,
-                                             fill='black')
+        self.snake_head = self.canvas.create_rectangle(x - self.size / 2,
+                                                       y - self.size / 2,
+                                                       x + self.size / 2,
+                                                       y + self.size / 2,
+                                                       fill='black')
         self.body = []
+        self.first_position = x, y
+        self.last_aim = None
+        self._direction = 'stop'
         self.history_of_move = [(x, y)]
-        self.snake_head = snake_head
-        self.canvas = canvas
+
+    def reset_snake(self):
+        current_position_snake_head = self.get_position(self.body[-1])
+        self.canvas.move(self.snake_head, -current_position_snake_head[0], -current_position_snake_head[1])
+        self.snake_head = self.canvas.create_rectangle(self.first_position[0] - self.size / 2,
+                                                       self.first_position[1] - self.size / 2,
+                                                       self.first_position[0] + self.size / 2,
+                                                       self.first_position[1] + self.size / 2,
+                                                       fill='black')
+        self.direction = 'stop'
+        for body in self.body:
+            self.canvas.delete(body)
+        self.body = []
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @direction.setter
+    def direction(self, value):
+        if value in self.aims.keys():
+            self._direction = value
+        else:
+            raise ValueError(f'The direction must be in {list(self.aims.keys())} (your value : {value})')
 
     def move_head(self):
         self.check_inside()
@@ -95,8 +119,8 @@ class Snake:
             self.history_of_move.append(position)
 
     def check_collision_head_and_body(self):
-        for b in self.history_of_move:
-            if self.get_position(self.snake_head) == b:
+        for body in self.body:
+            if self.get_position(self.snake_head) == self.get_position(body):
                 return True
         return False
 

@@ -50,9 +50,10 @@ class Game(tk.Frame):
             self.snake.move_head()
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
-            if self.snake.check_collision_head_and_body():
-                messagebox.showinfo('You loss', 'You loss')
-                break
+            if len(self.snake.body) > 1:
+                if self.snake.check_collision_head_and_body():
+                    messagebox.showinfo('You loss', 'You loss')
+                    break
             sleep(delay)
         self.restart_game()
 
