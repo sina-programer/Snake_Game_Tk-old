@@ -22,7 +22,9 @@ class Game(tk.Frame):
         tk.Label(master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
         tk.Label(master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
         
-        self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)')
+        self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
+        while self.level == None:
+            self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)        
         tk.Label(master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
         tk.Label(master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
 
