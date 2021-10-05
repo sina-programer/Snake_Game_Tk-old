@@ -12,7 +12,7 @@ class Game(tk.Frame):
         super(Game, self).__init__(master)
         
         self.database = Database()
-        self.database.create_table('score', ('id INTEGER PRIMARY KEY', 'best_score INTEGER NOT NULL'))
+
         
         self.font = ('arial', 20)
         self.score = tk.IntVar()
