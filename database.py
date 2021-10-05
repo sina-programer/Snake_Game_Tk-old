@@ -1,80 +1,30 @@
 import sqlite3
 
 
-def execute_query(query, args=None):
-    connection = sqlite3.connect('database.db')
-    cursor = connection.cursor()
-    result = cursor.execute(query, args)
-    connection.commit()
-    connection.close()
-    return result
+class Database:
+    def __init__(self, file:str='database.db'):
+        self.database_file = file
+        
+    def create_table(self, table:str, columns:tuple):
+        self.execute_query(f'CREATE TABLE IF NOT EXISTS {table}({",\n".join(columns)})')
 
-
-def create_table():
-    execute_query('''CREATE TABLE IF NOT EXISTS score(
-        id INTEGER PRIMARY KEY,
-        best_score INTEGER NOT NULL
-    )''')
-
-
-def add_score(best_score: int):
-    execute_query('INSERT INTO score VALUES (NULL, ?)', (best_score,))
-
-
-def delete_score(score_id: int):
-    execute_query('DELETE FROM score WHERE id=?', (score_id,))
-
-
-def update_score(score_id: int, best_score: int):
-    execute_query('UPDATE score best_score=? WHERE id=?', (best_score, score_id))
-
-
-def view_score():
-    return execute_query('SELECT * FROM score')
-
-
-def add_or_update(best_score: int):
-    """
-    Work on score table.
-    This function check if "the best score exist" in database update this
-    and if not exist add it to database.
-
-    :param best_score:
-    :return:
-    """
-
-    execute_query('''
-        IF EXIST (SELECT * FROM score WHERE best_score=?)
-        BEGIN
-        UPDATE score best_score=? WHERE best_score=?
-        END
-        ELSE
-        BEGIN
-        INSERT INTO score VALUES (NULL, ?)
-        END
-    ''', (best_score, best_score, best_score, best_score))
-
-
-def add_or_update_with_id(score_id: int, best_score: int):
-    """
-    Work on score table.
-    This function check if score_id exist in database update it and
-    if not exist add it to database.
-    :param score_id:
-    :param best_score:
-    :return:
-    """
-
-    execute_query('''
-        IF EXIST (SELECT * FROM score WHERE id=?)
-        BEGIN
-        UPDATE score best_score=? WHERE id=?
-        END
-        ELSE
-        BEGIN
-        INSERT INTO score VALUES (NULL, ?)
-        END
-    ''', (score_id, best_score, score_id, best_score))
-
-
-create_table()
+    def insert(self, table:str, values:tuple):
+        self.execute_query(f'INSERT INTO {table} VALUES ({", ".join(values)})')
+    
+    def update(self, table:str, column:str, value, score_id):
+        self.execute_query(f'UPDATE {table} {column}={value} WHERE id={score_id}')
+    
+    def select_all(self, table:str):
+        return self.execute_query(f'SELECT * FROM {table}')
+    
+    def select(self, table:str, columns:tuple):
+        return self.execute_query(f'SELECT {",".join(columns)} FROM {table}')
+    
+    def execute_query(query):
+        connection = sqlite3.connect(self.database_file)
+        cursor = connection.cursor()
+        result = cursor.execute(query)
+        connection.commit()
+        connection.close()
+        
+        return result
