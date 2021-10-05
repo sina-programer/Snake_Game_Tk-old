@@ -74,7 +74,7 @@ class Snake:
         for p in reversed(snake_history_of_move):
             if found_head_position is not None:
                 index += 1
-                if body_index == (index-1):
+                if body_index == (index - 1):
                     return p
             elif position == p:
                 found_head_position = True
@@ -93,6 +93,12 @@ class Snake:
     def save_move(self, position):
         if self.history_of_move[-1] != position:
             self.history_of_move.append(position)
+
+    def check_collision_head_and_body(self):
+        for b in self.history_of_move:
+            if self.get_position(self.snake_head) == b:
+                return True
+        return False
 
     @staticmethod
     def delete_unuse_move_history(history_of_move, body_number):
