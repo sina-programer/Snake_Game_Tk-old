@@ -13,6 +13,7 @@ This is snake game with Tkinter in python!
 ### Features:
 - Auto move bait after a time
 - User can select the game level
+- Game over when collision with self
 
 ### Preview:
 ![preview](/Files/preview.png)
