@@ -51,10 +51,10 @@ class Snake:
             if self.check_aim(self.aims, aim, self.last_aim):
                 self.last_aim = aim
                 self.move(*aim)
-                self.move_body(self.body, self.history_of_move, aim)
+                self.move_body(self.body, self.history_of_move)
             else:
                 self.move(*self.last_aim)
-                self.move_body(self.body, self.history_of_move, self.last_aim)
+                self.move_body(self.body, self.history_of_move)
 
     @staticmethod
     def check_aim(aims, aim, last_aim):
@@ -75,13 +75,12 @@ class Snake:
     def move(self, x, y):
         self.canvas.move(self.snake_head, x, y)
 
-    def move_body(self, body, snake_history_of_move, aim):
+    def move_body(self, body, snake_history_of_move):
         """
         This move the body of snake
         The snake_history_of_move must be tuple or list of coords
         :param body:
         :param snake_history_of_move:
-        :param aim:
         :return:
         """
 

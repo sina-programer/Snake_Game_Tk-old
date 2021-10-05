@@ -8,7 +8,7 @@ class Bait:
         self.x = random.randrange(10, 520, 15) - 2.5
         self.y = random.randrange(10, 520, 15) - 2.5
         self.canvas = canvas
-        self.time_to_move = 12-level*2
+        self.time_to_move = 12 - level * 2
         self.timer = self.time_to_move
         self.size = 15
 
@@ -17,7 +17,7 @@ class Bait:
                                             self.x + self.size / 2,
                                             self.y + self.size / 2,
                                             fill='green')
-        
+
         Thread(target=self.auto_move).start()
 
     def move(self):
@@ -33,7 +33,7 @@ class Bait:
 
     def auto_move(self):
         while True:
-            while self.timer>0:
+            while self.timer > 0:
                 self.timer -= 1
                 sleep(1)
             else:
