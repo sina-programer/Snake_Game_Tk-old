@@ -10,6 +10,10 @@
 ## About the Program:
 This is snake game with Tkinter in python!
 
+### Features:
+- Auto move bait after a time
+- User can select the game level
+
 ### Preview:
 ![preview](/Files/preview.png)
 
