@@ -20,7 +20,7 @@ class Snake:
         self._direction = 'stop'
         self.history_of_move = [(x, y)]
 
-    def reset_snake(self):
+    def reset(self):
         current_position_snake_head = self.get_position(self.body[-1])
         self.canvas.move(self.snake_head, -current_position_snake_head[0], -current_position_snake_head[1])
         self.snake_head = self.canvas.create_rectangle(self.first_position[0] - self.size / 2,

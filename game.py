@@ -1,7 +1,7 @@
 from time import sleep
 from threading import Thread
 import tkinter as tk
-from tkinter import simpledialog,messagebox
+from tkinter import simpledialog, messagebox
 from snake import Snake
 from bait import Bait
 
@@ -22,10 +22,10 @@ class Game(tk.Frame):
         self.pack(side=tk.BOTTOM, pady=5)
         tk.Label(self.master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
         tk.Label(self.master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
-        
+
         self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
-        while self.level == None:
-            self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)        
+        while self.level is None:
+            self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
         tk.Label(self.master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
         tk.Label(self.master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
 
@@ -45,7 +45,7 @@ class Game(tk.Frame):
         self.snake.reset()
 
     def game_loop(self):
-        delay = .15-(self.level/100)*2
+        delay = .15 - (self.level / 100) * 2
         while True:
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
@@ -58,7 +58,7 @@ class Game(tk.Frame):
             if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
                 messagebox.showinfo('You loss', 'You loss')
                 self.restart()
-                
+
             sleep(delay)
 
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
-    root.iconbitmap('Files/icon.ico')
+    # root.iconbitmap('Files/icon.ico')
 
     game = Game(root)
     game.mainloop()
