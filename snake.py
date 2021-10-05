@@ -74,7 +74,7 @@ class Snake:
         for p in reversed(snake_history_of_move):
             if found_head_position is not None:
                 index += 1
-                if body_index == index:
+                if body_index == (index-1):
                     return p
             elif position == p:
                 found_head_position = True
@@ -106,7 +106,7 @@ class Snake:
         p = p * body_number
         self.body.append(self.canvas.create_rectangle(x - p,
                                                       y - p, self.size + x - p,
-                                                      self.size + y - p, fill='gray')
+                                                      self.size + y - p, fill='grey')
                          )
 
     def set_direction(self, direction):
