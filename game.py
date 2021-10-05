@@ -1,15 +1,19 @@
-from time import sleep
-from threading import Thread
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+from database import Database
+from threading import Thread
 from snake import Snake
+from time import sleep
 from bait import Bait
 
 
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
-
+        
+        self.database = Database()
+        self.database.create_table('score', ('id INTEGER PRIMARY KEY', 'best_score INTEGER NOT NULL'))
+        
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -69,7 +73,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
-    # root.iconbitmap('Files/icon.ico')
+    # root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
     game.mainloop()
