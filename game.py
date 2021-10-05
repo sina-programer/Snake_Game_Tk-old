@@ -14,19 +14,20 @@ class Game(tk.Frame):
         self.score.set(0)
         self.width = 525
         self.height = 525
+        self.master = master
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
         self.canvas.pack()
         self.canvas.focus_force()
 
         self.pack(side=tk.BOTTOM, pady=5)
-        tk.Label(master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
-        tk.Label(master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
+        tk.Label(self.master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
+        tk.Label(self.master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
         
         self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
         while self.level == None:
             self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)        
-        tk.Label(master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
-        tk.Label(master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
+        tk.Label(self.master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
+        tk.Label(self.master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
 
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
         self.bait = Bait(self.canvas, self.level)
@@ -39,6 +40,10 @@ class Game(tk.Frame):
 
         Thread(target=self.game_loop).start()
 
+    def restart(self):
+        self.score.set(0)
+        self.snake.reset()
+
     def game_loop(self):
         delay = .15-(self.level/100)*2
         while True:
@@ -50,19 +55,18 @@ class Game(tk.Frame):
             self.snake.move_head()
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
-            if len(self.snake.body) > 1:
-                if self.snake.check_collision_head_and_body():
-                    messagebox.showinfo('You loss', 'You loss')
-                    break
+            if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
+                messagebox.showinfo('You loss', 'You loss')
+                self.restart()
+                
             sleep(delay)
-        self.restart_game()
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
-    # root.iconbitmap('Files/icon.ico')
+    root.iconbitmap('Files/icon.ico')
 
     game = Game(root)
     game.mainloop()
