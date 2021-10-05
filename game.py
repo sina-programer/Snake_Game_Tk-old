@@ -10,26 +10,28 @@ class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
 
+        self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
         self.width = 525
         self.height = 525
+        self.level = None
         self.master = master
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
         self.canvas.pack()
         self.canvas.focus_force()
-
         self.pack(side=tk.BOTTOM, pady=5)
-        tk.Label(self.master, text='Score:', font=('arial', 20)).pack(side=tk.LEFT, padx=5)
-        tk.Label(self.master, textvariable=self.score, font=('arial', 20)).pack(side=tk.LEFT)
+        
+        tk.Label(self.master, text='Score:', font=self.font).pack(side=tk.LEFT, padx=5)
+        tk.Label(self.master, textvariable=self.score, font=self.font).pack(side=tk.LEFT)
 
         self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
         while self.level is None:
             self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
-        tk.Label(self.master, text=self.level, font=('arial', 20)).pack(side=tk.RIGHT, padx=7)
-        tk.Label(self.master, text='Level:', font=('arial', 20)).pack(side=tk.RIGHT)
+        tk.Label(self.master, text=self.level, font=self.font).pack(side=tk.RIGHT, padx=8)
+        tk.Label(self.master, text='Level:', font=self.font).pack(side=tk.RIGHT)
 
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
+        self.snake = Snake(self.canvas, self.width/2, self.height/2)
         self.bait = Bait(self.canvas, self.level)
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
@@ -43,9 +45,10 @@ class Game(tk.Frame):
     def restart(self):
         self.score.set(0)
         self.snake.reset()
+        self.bait.reset()
 
     def game_loop(self):
-        delay = .15 - (self.level / 100) * 2
+        delay = .15 - (self.level/100) * 2
         while True:
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
