@@ -2,6 +2,7 @@
 
 ## Table of Contents:
 - [About the Program](#about-the-program)
+  - [Features](#features)
   - [Preview](#preview)
   - [Credits](#credits)
 - [Reach Me](#reach-me)
