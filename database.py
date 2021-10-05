@@ -43,13 +43,13 @@ class Score(Database):
         super(Score, self).insert(self.table_name, best_score)
 
     def update(self, score_id, best_score):
-        super(Score, self).update(self.table_name, ('id', 'best_score'), (score_id, best_score), score_id)
+        super(Score, self).update(self.table_name, ('id', 'best_score'), (best_score,), score_id)
 
     def select_all(self):
         return super(Score, self).select_all(self.table_name)
 
     def select(self, score_id):
-        return super(Score, self).select_all(self.table_name)
+        return super(Score, self).select(self.table_name, score_id)
 
 
 class User(Database):
@@ -58,14 +58,14 @@ class User(Database):
         self.table_name = 'user'
         self.create_table(self.table_name, ('id INTEGER PRIMARY KEY', 'name TEXT NOT NULL'))
 
-    def insert(self, best_score):
-        super(User, self).insert(self.table_name, best_score)
+    def insert(self, name):
+        super(User, self).insert(self.table_name, name)
 
-    def update(self, score_id, best_score):
-        super(User, self).update(self.table_name, ('id', 'name'), (score_id, best_score), score_id)
+    def update(self, user_id, name):
+        super(User, self).update(self.table_name, ('id', 'name'), (name,), user_id)
 
     def select_all(self):
         return super(User, self).select_all(self.table_name)
 
-    def select(self, score_id):
-        return super(User, self).select_all(self.table_name)
+    def select(self, user_id):
+        return super(User, self).select(self.table_name, user_id)
