@@ -95,8 +95,8 @@ class Snake:
             self.history_of_move.append(position)
 
     def check_collision_head_and_body(self):
-        for b in self.history_of_move:
-            if self.get_position(self.snake_head) == b:
+        for body in self.body:
+            if self.get_position(self.snake_head) == self.get_position(body):
                 return True
         return False
 
