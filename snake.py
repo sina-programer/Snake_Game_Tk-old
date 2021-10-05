@@ -51,10 +51,10 @@ class Snake:
             if self.check_aim(self.aims, aim, self.last_aim):
                 self.last_aim = aim
                 self.move(*aim)
-                self.move_body(self.body, self.history_of_move, aim)
+                self.move_body(self.body, self.history_of_move)
             else:
                 self.move(*self.last_aim)
-                self.move_body(self.body, self.history_of_move, self.last_aim)
+                self.move_body(self.body, self.history_of_move)
 
     @staticmethod
     def check_aim(aims, aim, last_aim):
