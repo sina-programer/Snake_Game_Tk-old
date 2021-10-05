@@ -6,7 +6,7 @@ class Database:
         self.database_file = file
 
     def create_table(self, table: str, columns: tuple):
-        self.execute_query(f'CREATE TABLE IF NOT EXISTS {table}({columns})')
+        self.execute_query(f'CREATE TABLE IF NOT EXISTS {table}{columns}')
 
     def insert(self, table: str, values: tuple):
         self.execute_query('INSERT INTO ? VALUES ?', (table, values))
@@ -69,3 +69,7 @@ class User(Database):
 
     def select(self, user_id):
         return super(User, self).select(self.table_name, user_id)
+
+
+score = Score()
+user = User()
