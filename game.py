@@ -10,8 +10,12 @@ from bait import Bait
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
-
-        self.user = User(name='Default', best_score=0)
+        
+        try:
+            self.user = User.select().where(User.name == 'Default').get()
+        except:
+            self.user = User(name='Default', best_score=0)
+            
         self.user.save()
         self.username = self.user.name
         self.best_score = tk.IntVar()
