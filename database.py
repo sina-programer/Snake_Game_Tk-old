@@ -20,3 +20,4 @@ class User(pw.Model):
 
 if not db.table_exists('User'):
     db.create_tables([User])
+    db.commit()
