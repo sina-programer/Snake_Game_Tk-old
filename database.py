@@ -11,7 +11,10 @@ class User(pw.Model):
         database = db
 
 
-def initialize_db():
-    db.connect()
-    db.create_tables([User], safe=True)
-    db.close()
+if not db.table_exists('User'):
+    db.create_tables([User])
+
+import sqlite3
+connection = sqlite3.connect('database.db')
+print(list(connection.cursor().execute('select * from User')))
+connection.close()

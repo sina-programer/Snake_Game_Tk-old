@@ -5,16 +5,17 @@ from threading import Thread
 from snake import Snake
 from time import sleep
 from bait import Bait
+from multiprocessing import Process
 
 
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
 
-        self.user = User.select()
-        if len(self.user) > 1:
-            # get by user name
-            pass
+        self.user = User.get()
+        # if len(self.user) > 1:
+        #     # get by user name
+        #     pass
 
         self.font = ('arial', 20)
         self.score = tk.IntVar()
@@ -33,8 +34,8 @@ class Game(tk.Frame):
 
         self.best_score = tk.IntVar()
         self.set_best_score_on_view()
-        tk.Label(self.master, text='Best score: ', font=self.font).pack(side=tk.CENTER, padx=5)
-        tk.Label(self.master, textvariable=self.best_score, font=self.font).pack(side=tk.CENTER)
+        tk.Label(self.master, text='Best score: ', font=self.font).pack(side=tk.TOP, padx=5)
+        tk.Label(self.master, textvariable=self.best_score, font=self.font).pack(side=tk.TOP)
 
         self.level = None
         while self.level is None:
@@ -54,7 +55,10 @@ class Game(tk.Frame):
         Thread(target=self.game_loop).start()
 
     def set_best_score_on_view(self):
-        self.best_score.set(self.user.best_score)
+        if len(User.select()) > 0:
+            self.best_score.set(self.user.best_score)
+        else:
+            self.best_score.set(0)
 
     def restart(self):
         self.score.set(0)
@@ -63,10 +67,7 @@ class Game(tk.Frame):
         self.set_best_score_on_view()
 
     def save_score(self):
-        user = User()
-        user.name = 'name'
-        user.best_score = self.score.get()
-        user.save()
+        pass
 
     def game_loop(self):
         delay = .15 - (self.level / 100) * 2
@@ -80,7 +81,7 @@ class Game(tk.Frame):
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
             if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
-                Thread(target=self.save_score).start()
+                self.save_score()
                 messagebox.showinfo('You loss', 'You loss')
                 self.restart()
 
