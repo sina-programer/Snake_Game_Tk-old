@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
-from database import Database
 from threading import Thread
+from database import User
 from snake import Snake
 from time import sleep
 from bait import Bait
@@ -10,10 +10,13 @@ from bait import Bait
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
-        
-        self.database = Database()
 
-        
+        self.user = User(name='Default', best_score=0)
+        self.user.save()
+        self.username = self.user.name
+        self.best_score = tk.IntVar()
+        self.best_score.set(self.user.best_score)
+
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -25,7 +28,7 @@ class Game(tk.Frame):
         self.canvas.pack()
         self.canvas.focus_force()
         self.pack(side=tk.BOTTOM, pady=5)
-        
+
         tk.Label(self.master, text='Score:', font=self.font).pack(side=tk.LEFT, padx=5)
         tk.Label(self.master, textvariable=self.score, font=self.font).pack(side=tk.LEFT)
 
@@ -34,6 +37,9 @@ class Game(tk.Frame):
             self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
         tk.Label(self.master, text=self.level, font=self.font).pack(side=tk.RIGHT, padx=8)
         tk.Label(self.master, text='Level:', font=self.font).pack(side=tk.RIGHT)
+
+        tk.Label(self.master, text='Best Score:', font=self.font).place(x=170, y=10)
+        tk.Label(self.master, textvariable=self.best_score, font=self.font).place(x=320, y=11)
 
         self.snake = Snake(self.canvas, self.width/2, self.height/2)
         self.bait = Bait(self.canvas, self.level)
@@ -47,6 +53,12 @@ class Game(tk.Frame):
         Thread(target=self.game_loop).start()
 
     def restart(self):
+        score = self.score.get()
+        best_score = self.best_score.get()
+        if score > best_score:
+            self.best_score.set(score)
+            self.user.best_score = score
+            self.user.save()
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
