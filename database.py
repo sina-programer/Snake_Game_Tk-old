@@ -6,10 +6,6 @@ db.connect()
 class User(pw.Model):
     name = pw.CharField()
     best_score = pw.IntegerField()
-    
-    @staticmethod
-    def connect():
-        db.connect()
         
     @staticmethod
     def close():
@@ -17,6 +13,7 @@ class User(pw.Model):
 
     class Meta:
         database = db
+
 
 if not db.table_exists('User'):
     db.create_tables([User])
