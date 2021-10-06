@@ -1,18 +1,10 @@
-import peewee
+import peewee as pw
 
-db = peewee.SqliteDatabase('database.db')
+db = pw.SqliteDatabase('database.db')
 
-
-class User(peewee.Model):
-    name = peewee.CharField()
-
-    class Meta:
-        database = db
-
-
-class Score(peewee.Model):
-    best_score = peewee.IntegerField()
-    user = peewee.ForeignKeyField(User)
+class User(pw.Model):
+    name = pw.CharField()
+    best_score = pw.IntegerField()
 
     class Meta:
         database = db
