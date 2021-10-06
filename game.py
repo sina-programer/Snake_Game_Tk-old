@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
-from database import Database
+from database import User
 from threading import Thread
 from snake import Snake
 from time import sleep
@@ -10,10 +10,12 @@ from bait import Bait
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
-        
-        self.database = Database()
 
-        
+        self.user = User.select()
+        if len(self.user) > 1:
+            # get by user name
+            pass
+
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -25,17 +27,22 @@ class Game(tk.Frame):
         self.canvas.pack()
         self.canvas.focus_force()
         self.pack(side=tk.BOTTOM, pady=5)
-        
+
         tk.Label(self.master, text='Score:', font=self.font).pack(side=tk.LEFT, padx=5)
         tk.Label(self.master, textvariable=self.score, font=self.font).pack(side=tk.LEFT)
 
-        self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
+        self.best_score = tk.IntVar()
+        self.set_best_score_on_view()
+        tk.Label(self.master, text='Best score: ', font=self.font).pack(side=tk.CENTER, padx=5)
+        tk.Label(self.master, textvariable=self.best_score, font=self.font).pack(side=tk.CENTER)
+
+        self.level = None
         while self.level is None:
             self.level = simpledialog.askinteger('Level', 'Select a level:(3 hardest)', minvalue=1, maxvalue=3)
         tk.Label(self.master, text=self.level, font=self.font).pack(side=tk.RIGHT, padx=8)
         tk.Label(self.master, text='Level:', font=self.font).pack(side=tk.RIGHT)
 
-        self.snake = Snake(self.canvas, self.width/2, self.height/2)
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
         self.bait = Bait(self.canvas, self.level)
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
@@ -46,13 +53,23 @@ class Game(tk.Frame):
 
         Thread(target=self.game_loop).start()
 
+    def set_best_score_on_view(self):
+        self.best_score.set(self.user.best_score)
+
     def restart(self):
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
+        self.set_best_score_on_view()
+
+    def save_score(self):
+        user = User()
+        user.name = 'name'
+        user.best_score = self.score.get()
+        user.save()
 
     def game_loop(self):
-        delay = .15 - (self.level/100) * 2
+        delay = .15 - (self.level / 100) * 2
         while True:
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
@@ -63,6 +80,7 @@ class Game(tk.Frame):
             self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
             self.snake.save_move(self.snake.get_position(self.snake.snake_head))
             if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
+                Thread(target=self.save_score).start()
                 messagebox.showinfo('You loss', 'You loss')
                 self.restart()
 
