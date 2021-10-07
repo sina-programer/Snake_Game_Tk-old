@@ -11,15 +11,18 @@ class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
         
+        self.best_score = tk.IntVar()
+        
         try:
             self.user = User.select().where(User.name == 'Default').get()
+            self.best_score.set(self.user.best_score)
+            
         except:
             self.user = User(name='Default', best_score=0)
+            self.best_score.set(0)
             
         self.user.save()
         self.username = self.user.name
-        self.best_score = tk.IntVar()
-        self.best_score.set(self.user.best_score)
 
         self.font = ('arial', 20)
         self.score = tk.IntVar()
@@ -59,10 +62,12 @@ class Game(tk.Frame):
     def restart(self):
         score = self.score.get()
         best_score = self.best_score.get()
+
         if score > best_score:
             self.best_score.set(score)
             self.user.best_score = score
             self.user.save()
+
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
