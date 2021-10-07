@@ -10,20 +10,21 @@ from bait import Bait
 class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
-        
+
         self.best_score = tk.IntVar()
-        
+
         try:
             self.user = User.select().where(User.name == 'Default').get()
             self.best_score.set(self.user.best_score)
-            
+
         except:
             self.user = User(name='Default', best_score=0)
             self.best_score.set(0)
-            
+
         self.user.save()
         self.username = self.user.name
 
+        self.is_exit = False
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -48,7 +49,7 @@ class Game(tk.Frame):
         tk.Label(self.master, text='Best Score:', font=self.font).place(x=170, y=10)
         tk.Label(self.master, textvariable=self.best_score, font=self.font).place(x=320, y=11)
 
-        self.snake = Snake(self.canvas, self.width/2, self.height/2)
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
         self.bait = Bait(self.canvas, self.level)
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
@@ -57,7 +58,8 @@ class Game(tk.Frame):
         self.canvas.bind('<Down>', lambda _: self.snake.set_direction('down'))
         self.canvas.bind('<Escape>', lambda _: self.snake.set_direction('stop'))
 
-        Thread(target=self.game_loop).start()
+        self.game_loop_thread = Thread(target=self.game_loop)
+        self.game_loop_thread.start()
 
     def restart(self):
         score = self.score.get()
@@ -73,8 +75,10 @@ class Game(tk.Frame):
         self.bait.reset()
 
     def game_loop(self):
-        delay = .15 - (self.level/100) * 2
+        delay = .15 - (self.level / 100) * 2
         while True:
+            if self.is_exit:
+                break
             if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
                 self.bait.move()
                 self.score.set(self.score.get() + 1)
@@ -95,6 +99,16 @@ if __name__ == "__main__":
     root.title('Snake Game')
     root.geometry('540x600+440+130')
     # root.iconbitmap(default='Files/icon.ico')
-
     game = Game(root)
+
+
+    def on_closing():
+        game.is_exit = True
+        game.game_loop_thread.join()
+        root.destroy()
+        exit()
+
+
+    root.protocol('WM_DELETE_WINDOW', on_closing)
+
     game.mainloop()
