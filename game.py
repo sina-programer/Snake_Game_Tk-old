@@ -33,6 +33,7 @@ class SettingDialog(simpledialog.Dialog):
         submit = messagebox.askokcancel('Restart Game', 'Are you sure to restart the game(reset scores)')
         if submit:
             self.app.set_level(self.level_var.get())
+            self.app.restart()
 
     def buttonbox(self):
         pass
@@ -96,8 +97,10 @@ class Game(tk.Frame):
         self.score.set(0)
         self.width = 525
         self.height = 525
-        self.level = tk.IntVar()
+        self.energy = tk.IntVar()
+        self.energy.set(420)
         self.delay = None
+        self.level = tk.IntVar()
         self.master = master
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
@@ -118,11 +121,11 @@ class Game(tk.Frame):
         tk.Label(self.master, text='Score:', font=self.font).pack(side=tk.LEFT, padx=5)
         tk.Label(self.master, textvariable=self.score, font=self.font).pack(side=tk.LEFT)
 
-        tk.Label(self.master, textvariable=self.level, font=self.font).pack(side=tk.RIGHT, padx=8)
-        tk.Label(self.master, text='Level:', font=self.font).pack(side=tk.RIGHT)
+        tk.Label(self.master, text='Best Score:', font=self.font).place(x=160, y=10)
+        tk.Label(self.master, textvariable=self.best_score, font=self.font).place(x=310, y=11)
 
-        tk.Label(self.master, text='Best Score:', font=self.font).place(x=170, y=10)
-        tk.Label(self.master, textvariable=self.best_score, font=self.font).place(x=320, y=11)
+        tk.Label(self.master, textvariable=self.energy, font=self.font).pack(side=tk.RIGHT, padx=8)
+        tk.Label(self.master, text='Energy:', font=self.font).pack(side=tk.RIGHT)
 
         self.game_loop()
 
@@ -134,6 +137,7 @@ class Game(tk.Frame):
             self.user.best_score = score
             self.user.save()
 
+        self.energy.set(500 - self.level.get() * 40)
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
@@ -151,8 +155,18 @@ class Game(tk.Frame):
     def check_eating_bait(self):
         if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
             self.bait.move()
+            self.energy.set(self.energy.get() + 30)
             self.score.set(self.score.get() + 1)
             self.snake.add_body(len(self.snake.body))
+
+    def check_energy(self):
+        energy = self.energy.get()
+        if energy > 0:
+            if self.snake.direction != 'stop':
+                self.energy.set(energy - 1)
+        else:
+            messagebox.showinfo('You loss', 'Your energies finished!')
+            self.restart()
 
     def set_level(self, level):
         self.level.set(level)
@@ -173,6 +187,7 @@ class Game(tk.Frame):
             self.check_eating_bait()
             self.check_head_and_body_collision()
             self.move_snake()
+            self.check_energy()
             sleep(self.delay)
 
 
