@@ -2,7 +2,6 @@ import winsound
 import webbrowser
 import tkinter as tk
 from time import sleep
-from threading import Thread
 from tkinter import simpledialog, messagebox
 
 from bait import Bait
@@ -49,15 +48,21 @@ class AboutDialog(simpledialog.Dialog):
 
         sina_frame = tk.LabelFrame(self, text='Sina.f')
         sina_frame.pack(fill=tk.X, pady=5)
-        tk.Button(sina_frame, text='GitHub', width=8, command=lambda: webbrowser.open('https://github.com/sina-programer')).grid(column=1, **grid_options)
-        tk.Button(sina_frame, text='Instagram', width=8, command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(column=2, **grid_options)
-        tk.Button(sina_frame, text='Telegram', width=8, command=lambda: webbrowser.open('https://t.me/sina_programer')).grid(column=3, **grid_options)
+        tk.Button(sina_frame, text='GitHub', width=8,
+                  command=lambda: webbrowser.open('https://github.com/sina-programer')).grid(column=1, **grid_options)
+        tk.Button(sina_frame, text='Instagram', width=8,
+                  command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(column=2, **grid_options)
+        tk.Button(sina_frame, text='Telegram', width=8,
+                  command=lambda: webbrowser.open('https://t.me/sina_programer')).grid(column=3, **grid_options)
 
         mohammad_frame = tk.LabelFrame(self, text='Mohammad Amini')
         mohammad_frame.pack(fill=tk.X, pady=15)
-        tk.Button(mohammad_frame, text='GitHub', width=8, command=lambda: webbrowser.open('https://github.com/mohammadaminY')).grid(column=1, **grid_options)
-        tk.Button(mohammad_frame, text='Instagram', width=8, command=lambda: webbrowser.open('https://www.instagram.com/insta_id')).grid(column=2, **grid_options)
-        tk.Button(mohammad_frame, text='Telegram', width=8, command=lambda: webbrowser.open('https://t.me/tel_id')).grid(column=3, **grid_options)
+        tk.Button(mohammad_frame, text='GitHub', width=8,
+                  command=lambda: webbrowser.open('https://github.com/mohammadaminY')).grid(column=1, **grid_options)
+        tk.Button(mohammad_frame, text='Instagram', width=8,
+                  command=lambda: webbrowser.open('https://www.instagram.com/insta_id')).grid(column=2, **grid_options)
+        tk.Button(mohammad_frame, text='Telegram', width=8,
+                  command=lambda: webbrowser.open('https://t.me/tel_id')).grid(column=3, **grid_options)
 
         self.geometry('300x240')
         self.resizable(False, False)
@@ -119,7 +124,7 @@ class Game(tk.Frame):
         tk.Label(self.master, text='Best Score:', font=self.font).place(x=170, y=10)
         tk.Label(self.master, textvariable=self.best_score, font=self.font).place(x=320, y=11)
 
-        Thread(target=self.game_loop).start()
+        self.game_loop()
 
     def restart(self):
         score = self.score.get()
@@ -163,6 +168,7 @@ class Game(tk.Frame):
 
     def game_loop(self):
         while True:
+            self.update()
             self.bait.check_auto_move()
             self.check_eating_bait()
             self.check_head_and_body_collision()
