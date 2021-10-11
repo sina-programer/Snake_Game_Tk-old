@@ -7,11 +7,8 @@ db.connect()
 class User(pw.Model):
     name = pw.CharField(unique=True)
     best_score = pw.IntegerField()
-    color = pw.CharField(null=True)
-        
-    @staticmethod
-    def close():
-        db.close()
+    head_color = pw.CharField(7)
+    body_color = pw.CharField(7)
 
     class Meta:
         database = db
@@ -19,4 +16,3 @@ class User(pw.Model):
 
 if not db.table_exists('User'):
     db.create_tables([User])
-    db.commit()
