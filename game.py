@@ -1,7 +1,6 @@
-# import winsound
+import sys
 import webbrowser
 import tkinter as tk
-import ast
 from time import sleep
 from tkinter import simpledialog, messagebox, colorchooser
 
@@ -9,23 +8,35 @@ from bait import Bait
 from snake import Snake
 from database import User
 
+is_windows = sys.platform == 'win32'
+if is_windows:
+    import winsound
 
-class ShowBestScoresDialog(simpledialog.Dialog):
+
+class BestScoresDialog(simpledialog.Dialog):
     def __init__(self, parent, app):
         self.app = app
-        super(ShowBestScoresDialog, self).__init__(parent, 'Show best scores')
+        super(BestScoresDialog, self).__init__(parent, 'Best scores')
 
-    def body(self, master):
-        self.lb = tk.Listbox(master)
-        self.lb.grid(row=0, column=0)
-        self.sb = tk.Scrollbar(master)
-        self.sb.grid(row=0, column=1, sticky=tk.NS)
+    def body(self, frame):
+        list_box = tk.Listbox(frame)
+        list_box.pack(side=tk.LEFT)
+        scrollbar = tk.Scrollbar(frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        for user in User.select():
-            self.lb.insert(tk.END, f'{user.name}: {user.best_score}')
+        for user in User.select().order_by(User.best_score):
+            list_box.insert(tk.END, f' {user.name}: {user.best_score}')
 
-        self.lb.configure(yscrollcommand=self.sb.set)
-        self.sb.configure(command=self.lb.yview)
+        list_box.configure(yscrollcommand=scrollbar.set)
+        scrollbar.configure(command=list_box.yview)
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+    def buttonbox(self):
+        pass
 
 
 class SettingDialog(simpledialog.Dialog):
@@ -33,36 +44,49 @@ class SettingDialog(simpledialog.Dialog):
         self.app = app
         self.level_var = tk.IntVar()
         self.level_var.set(self.app.level.get())
-        self.color = {'head': 'black', 'body': 'grey'}
+        self.head_color = self.app.snake.color['head']
+        self.body_color = self.app.snake.color['body']
         super().__init__(parent, 'Setting')
 
     def body(self, frame):
         tk.Label(self, text='Level:').place(x=20, y=20)
         tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=2)
 
-        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=80, y=130)
+        tk.Label(self, text='Snake Head Color:').place(x=20, y=60)
+        self.head_color_btn = tk.Button(self, bg=self.head_color, width=2, command=self.set_head_color)
+        self.head_color_btn.place(x=135, y=60)
 
-        tk.Button(self, text='Change snake head color', command=lambda: self.set_color()).place(x=1, y=55)
-        tk.Button(self, text='Change snake body color', command=lambda: self.set_color(True)).place(x=1, y=90)
+        tk.Label(self, text='Snake Body Color:').place(x=20, y=110)
+        self.body_color_btn = tk.Button(self, bg=self.body_color, width=2, command=self.set_body_color)
+        self.body_color_btn.place(x=135, y=110)
 
-        self.geometry('200x180')
+        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=65, y=155)
+
+        self.geometry('200x200')
         self.resizable(False, False)
         self.bind('<Return>', lambda _: self.apply())
-        # winsound.MessageBeep()
+        if is_windows:
+            winsound.MessageBeep()
 
         return frame
 
-    def set_color(self, for_body=False):
-        if for_body:
-            self.color['body'] = colorchooser.askcolor(master=self.master)[1]
-        else:
-            self.color['head'] = colorchooser.askcolor(master=self.master)[1]
+    def set_head_color(self):
+        self.head_color = colorchooser.askcolor(initialcolor=self.head_color)[1]
+        self.head_color_btn.config(bg=self.head_color)
+
+    def set_body_color(self):
+        self.body_color = colorchooser.askcolor(initialcolor=self.body_color)[1]
+        self.body_color_btn.config(bg=self.body_color)
 
     def apply(self):
         submit = messagebox.askokcancel('Restart Game', 'Are you sure to restart the game(reset scores)')
         if submit:
-            self.app.change_snake_color(self.color['head'], self.color['body'])
+            self.app.snake.change_head_color(self.head_color)
+            self.app.snake.change_body_color(self.body_color)
             self.app.set_level(self.level_var.get())
+            self.app.user.head_color = self.app.snake.color['head']
+            self.app.user.body_color = self.app.snake.color['body']
+            self.app.user.save()
             self.app.restart()
 
     def buttonbox(self):
@@ -98,7 +122,8 @@ class AboutDialog(simpledialog.Dialog):
 
         self.geometry('300x240')
         self.resizable(False, False)
-        # winsound.MessageBeep()
+        if is_windows:
+            winsound.MessageBeep()
 
         return frame
 
@@ -115,16 +140,13 @@ class Game(tk.Frame):
         try:
             self.user = User.select().where(User.name == 'Default').get()
             self.best_score.set(self.user.best_score)
-
         except:
-            self.user = User(name='Default', best_score=0)
+            self.user = User(name='Default', best_score=0, head_color='black', body_color='grey')
             self.best_score.set(0)
 
         self.user.save()
         self.username = self.user.name
 
-        self.head_color = 'black'
-        self.body_color = 'grey'
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -138,8 +160,7 @@ class Game(tk.Frame):
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
 
-        snake_color = ast.literal_eval(self.user.color) if self.user.color else ''
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, snake_color)
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.head_color, self.user.body_color)
         self.bait = Bait(self.canvas)
         self.set_level(2)
 
@@ -177,12 +198,6 @@ class Game(tk.Frame):
         self.snake.reset()
         self.bait.reset()
 
-    def change_snake_color(self, head_color, body_color):
-        self.snake.change_head_color(head_color)
-        self.snake.change_body_color(body_color)
-        self.user.color = {'head': head_color, 'body': body_color}
-        self.user.save()
-
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
             messagebox.showinfo('You loss', 'You loss')
@@ -191,10 +206,10 @@ class Game(tk.Frame):
     def move_snake(self):
         self.snake.move_head()
         self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
-        self.snake.save_move(self.snake.get_position(self.snake.snake_head))
+        self.snake.save_move(self.snake.get_position(self.snake.head))
 
     def check_eating_bait(self):
-        if self.snake.get_position(self.snake.snake_head) == self.bait.get_position():
+        if self.snake.get_position(self.snake.head) == self.bait.get_position():
             self.bait.move()
             self.energy.set(self.energy.get() + 30)
             self.score.set(self.score.get() + 1)
@@ -216,9 +231,9 @@ class Game(tk.Frame):
 
     def init_menu(self):
         menu = tk.Menu(self.master)
+        menu.add_command(label='Best scores', command=lambda: BestScoresDialog(self.master, self))
         menu.add_command(label='Setting', command=lambda: SettingDialog(self.master, self))
         menu.add_command(label='About us', command=lambda: AboutDialog(self.master))
-        menu.add_command(label='Show best scores', command=lambda: ShowBestScoresDialog(self.master, self))
 
         return menu
 
@@ -237,7 +252,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
-    # root.iconbitmap(default='Files/icon.ico')
+    root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
     game.mainloop()
