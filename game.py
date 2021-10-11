@@ -1,6 +1,7 @@
 # import winsound
 import webbrowser
 import tkinter as tk
+import ast
 from time import sleep
 from tkinter import simpledialog, messagebox, colorchooser
 
@@ -14,7 +15,7 @@ class SettingDialog(simpledialog.Dialog):
         self.app = app
         self.level_var = tk.IntVar()
         self.level_var.set(self.app.level.get())
-        self.color = {'head': 'black', 'body': 'grey'}
+        self.color = {'head': '', 'body': ''}
         super().__init__(parent, 'Setting')
 
     def body(self, frame):
@@ -118,7 +119,8 @@ class Game(tk.Frame):
         self.master = master
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
+        snake_color = ast.literal_eval(self.user.color) if self.user.color else ''
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, snake_color)
         self.bait = Bait(self.canvas)
         self.set_level(2)
 
@@ -159,6 +161,8 @@ class Game(tk.Frame):
     def change_snake_color(self, head_color, body_color):
         self.snake.change_head_color(head_color)
         self.snake.change_body_color(body_color)
+        self.user.color = {'head': head_color, 'body': body_color}
+        self.user.save()
 
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():

@@ -1,5 +1,5 @@
 class Snake:
-    def __init__(self, canvas, x, y):
+    def __init__(self, canvas, x, y, color: dict):
         self.canvas = canvas
         self.aims = {
             'stop': None,
@@ -8,7 +8,7 @@ class Snake:
             'left': (-15, 0),
             'right': (15, 0)
         }
-        self.color = {'head': 'black', 'body': 'grey'}
+        self.color = color if color else {'head': 'black', 'body': 'grey'}
         self.size = 15
         self.snake_head = self.canvas.create_rectangle(x - self.size / 2,
                                                        y - self.size / 2,
@@ -47,14 +47,16 @@ class Snake:
             raise ValueError(f'The direction must be in {list(self.aims.keys())} (your value : {value})')
 
     def change_body_color(self, color):
-        for body in self.body:
-            self.canvas.itemconfig(body, fill=color)
-        self.color['body'] = color
+        if color:
+            for body in self.body:
+                self.canvas.itemconfig(body, fill=color)
+            self.color['body'] = color
 
     def change_head_color(self, color):
-        self.canvas.itemconfig(self.snake_head, fill=color)
-        print(color)
-        self.color['head'] = color
+        if color:
+            self.canvas.itemconfig(self.snake_head, fill=color)
+            print(color)
+            self.color['head'] = color
 
     def move_head(self):
         self.check_inside()
