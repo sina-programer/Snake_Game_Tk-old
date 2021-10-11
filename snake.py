@@ -152,6 +152,9 @@ class Snake:
                                                       self.size + y - p, fill=self.color['body'])
                          )
 
+    def reduce_body(self):
+        print(self.body)
+
     def set_direction(self, direction):
         if self.direction != direction:
             self.direction = direction

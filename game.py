@@ -10,12 +10,30 @@ from snake import Snake
 from database import User
 
 
+class ShowBestScoresDialog(simpledialog.Dialog):
+    def __init__(self, parent, app):
+        self.app = app
+        super(ShowBestScoresDialog, self).__init__(parent, 'Show best scores')
+
+    def body(self, master):
+        self.lb = tk.Listbox(master)
+        self.lb.grid(row=0, column=0)
+        self.sb = tk.Scrollbar(master)
+        self.sb.grid(row=0, column=1, sticky=tk.NS)
+
+        for user in User.select():
+            self.lb.insert(tk.END, f'{user.name}: {user.best_score}')
+
+        self.lb.configure(yscrollcommand=self.sb.set)
+        self.sb.configure(command=self.lb.yview)
+
+
 class SettingDialog(simpledialog.Dialog):
     def __init__(self, parent, app):
         self.app = app
         self.level_var = tk.IntVar()
         self.level_var.set(self.app.level.get())
-        self.color = {'head': '', 'body': ''}
+        self.color = {'head': 'black', 'body': 'grey'}
         super().__init__(parent, 'Setting')
 
     def body(self, frame):
@@ -119,6 +137,7 @@ class Game(tk.Frame):
         self.master = master
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
+
         snake_color = ast.literal_eval(self.user.color) if self.user.color else ''
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2, snake_color)
         self.bait = Bait(self.canvas)
@@ -199,6 +218,7 @@ class Game(tk.Frame):
         menu = tk.Menu(self.master)
         menu.add_command(label='Setting', command=lambda: SettingDialog(self.master, self))
         menu.add_command(label='About us', command=lambda: AboutDialog(self.master))
+        menu.add_command(label='Show best scores', command=lambda: ShowBestScoresDialog(self.master, self))
 
         return menu
 
