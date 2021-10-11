@@ -7,6 +7,7 @@ db.connect()
 class User(pw.Model):
     name = pw.CharField(unique=True)
     best_score = pw.IntegerField()
+    color = pw.CharField(null=True)
         
     @staticmethod
     def close():

@@ -1,12 +1,31 @@
-import winsound
+# import winsound
 import webbrowser
 import tkinter as tk
+import ast
 from time import sleep
-from tkinter import simpledialog, messagebox
+from tkinter import simpledialog, messagebox, colorchooser
 
 from bait import Bait
 from snake import Snake
 from database import User
+
+
+class ShowBestScoresDialog(simpledialog.Dialog):
+    def __init__(self, parent, app):
+        self.app = app
+        super(ShowBestScoresDialog, self).__init__(parent, 'Show best scores')
+
+    def body(self, master):
+        self.lb = tk.Listbox(master)
+        self.lb.grid(row=0, column=0)
+        self.sb = tk.Scrollbar(master)
+        self.sb.grid(row=0, column=1, sticky=tk.NS)
+
+        for user in User.select():
+            self.lb.insert(tk.END, f'{user.name}: {user.best_score}')
+
+        self.lb.configure(yscrollcommand=self.sb.set)
+        self.sb.configure(command=self.lb.yview)
 
 
 class SettingDialog(simpledialog.Dialog):
@@ -14,24 +33,35 @@ class SettingDialog(simpledialog.Dialog):
         self.app = app
         self.level_var = tk.IntVar()
         self.level_var.set(self.app.level.get())
+        self.color = {'head': 'black', 'body': 'grey'}
         super().__init__(parent, 'Setting')
 
     def body(self, frame):
         tk.Label(self, text='Level:').place(x=20, y=20)
         tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=2)
 
-        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=80, y=100)
+        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=80, y=130)
 
-        self.geometry('200x150')
+        tk.Button(self, text='Change snake head color', command=lambda: self.set_color()).place(x=1, y=55)
+        tk.Button(self, text='Change snake body color', command=lambda: self.set_color(True)).place(x=1, y=90)
+
+        self.geometry('200x180')
         self.resizable(False, False)
         self.bind('<Return>', lambda _: self.apply())
-        winsound.MessageBeep()
+        # winsound.MessageBeep()
 
         return frame
+
+    def set_color(self, for_body=False):
+        if for_body:
+            self.color['body'] = colorchooser.askcolor(master=self.master)[1]
+        else:
+            self.color['head'] = colorchooser.askcolor(master=self.master)[1]
 
     def apply(self):
         submit = messagebox.askokcancel('Restart Game', 'Are you sure to restart the game(reset scores)')
         if submit:
+            self.app.change_snake_color(self.color['head'], self.color['body'])
             self.app.set_level(self.level_var.get())
             self.app.restart()
 
@@ -52,7 +82,8 @@ class AboutDialog(simpledialog.Dialog):
         tk.Button(sina_frame, text='GitHub', width=8,
                   command=lambda: webbrowser.open('https://github.com/sina-programer')).grid(column=1, **grid_options)
         tk.Button(sina_frame, text='Instagram', width=8,
-                  command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(column=2, **grid_options)
+                  command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(column=2,
+                                                                                                    **grid_options)
         tk.Button(sina_frame, text='Telegram', width=8,
                   command=lambda: webbrowser.open('https://t.me/sina_programer')).grid(column=3, **grid_options)
 
@@ -67,7 +98,7 @@ class AboutDialog(simpledialog.Dialog):
 
         self.geometry('300x240')
         self.resizable(False, False)
-        winsound.MessageBeep()
+        # winsound.MessageBeep()
 
         return frame
 
@@ -92,6 +123,8 @@ class Game(tk.Frame):
         self.user.save()
         self.username = self.user.name
 
+        self.head_color = 'black'
+        self.body_color = 'grey'
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -104,7 +137,9 @@ class Game(tk.Frame):
         self.master = master
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2)
+
+        snake_color = ast.literal_eval(self.user.color) if self.user.color else ''
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, snake_color)
         self.bait = Bait(self.canvas)
         self.set_level(2)
 
@@ -142,6 +177,12 @@ class Game(tk.Frame):
         self.snake.reset()
         self.bait.reset()
 
+    def change_snake_color(self, head_color, body_color):
+        self.snake.change_head_color(head_color)
+        self.snake.change_body_color(body_color)
+        self.user.color = {'head': head_color, 'body': body_color}
+        self.user.save()
+
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
             messagebox.showinfo('You loss', 'You loss')
@@ -177,6 +218,7 @@ class Game(tk.Frame):
         menu = tk.Menu(self.master)
         menu.add_command(label='Setting', command=lambda: SettingDialog(self.master, self))
         menu.add_command(label='About us', command=lambda: AboutDialog(self.master))
+        menu.add_command(label='Show best scores', command=lambda: ShowBestScoresDialog(self.master, self))
 
         return menu
 
@@ -195,7 +237,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
-    root.iconbitmap(default='Files/icon.ico')
+    # root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
     game.mainloop()

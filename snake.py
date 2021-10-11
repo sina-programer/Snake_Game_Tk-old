@@ -1,5 +1,5 @@
 class Snake:
-    def __init__(self, canvas, x, y):
+    def __init__(self, canvas, x, y, color: dict):
         self.canvas = canvas
         self.aims = {
             'stop': None,
@@ -8,12 +8,13 @@ class Snake:
             'left': (-15, 0),
             'right': (15, 0)
         }
+        self.color = color if color else {'head': 'black', 'body': 'grey'}
         self.size = 15
         self.snake_head = self.canvas.create_rectangle(x - self.size / 2,
                                                        y - self.size / 2,
                                                        x + self.size / 2,
                                                        y + self.size / 2,
-                                                       fill='black')
+                                                       fill=self.color['head'])
         self.body = []
         self.first_position = x, y
         self.last_aim = None
@@ -21,13 +22,14 @@ class Snake:
         self.history_of_move = [(x, y)]
 
     def reset(self):
-        current_position_snake_head = self.get_position(self.body[-1])
-        self.canvas.move(self.snake_head, -current_position_snake_head[0], -current_position_snake_head[1])
+        # current_position_snake_head = self.get_position(self.body[-1])
+        # self.canvas.move(self.snake_head, -current_position_snake_head[0], -current_position_snake_head[1])
+        self.canvas.delete(self.snake_head)
         self.snake_head = self.canvas.create_rectangle(self.first_position[0] - self.size / 2,
                                                        self.first_position[1] - self.size / 2,
                                                        self.first_position[0] + self.size / 2,
                                                        self.first_position[1] + self.size / 2,
-                                                       fill='black')
+                                                       fill=self.color['head'])
         self.direction = 'stop'
         for body in self.body:
             self.canvas.delete(body)
@@ -43,6 +45,18 @@ class Snake:
             self._direction = value
         else:
             raise ValueError(f'The direction must be in {list(self.aims.keys())} (your value : {value})')
+
+    def change_body_color(self, color):
+        if color:
+            for body in self.body:
+                self.canvas.itemconfig(body, fill=color)
+            self.color['body'] = color
+
+    def change_head_color(self, color):
+        if color:
+            self.canvas.itemconfig(self.snake_head, fill=color)
+            print(color)
+            self.color['head'] = color
 
     def move_head(self):
         self.check_inside()
@@ -135,8 +149,11 @@ class Snake:
         p = p * body_number
         self.body.append(self.canvas.create_rectangle(x - p,
                                                       y - p, self.size + x - p,
-                                                      self.size + y - p, fill='grey')
+                                                      self.size + y - p, fill=self.color['body'])
                          )
+
+    def reduce_body(self):
+        print(self.body)
 
     def set_direction(self, direction):
         if self.direction != direction:
