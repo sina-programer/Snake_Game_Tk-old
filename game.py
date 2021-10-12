@@ -12,18 +12,9 @@ class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
 
+        self.user = None
         self.best_score = tk.IntVar()
-
-        try:
-            self.user = User.select().where(User.name == 'Default').get()
-            self.best_score.set(self.user.best_score)
-        except:
-            self.user = User(name='Default', best_score=0, head_color='black', body_color='grey')
-            self.best_score.set(0)
-
-        self.user.save()
-        self.username = self.user.name
-
+        self.change_user('Default')
         self.font = ('arial', 20)
         self.score = tk.IntVar()
         self.score.set(0)
@@ -74,6 +65,15 @@ class Game(tk.Frame):
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
+
+    def change_user(self, username):
+        try:
+            self.user = User.select().where(User.name == username).get()
+        except:
+            self.user = User(name=username, best_score=0, head_color='black', body_color='grey')
+
+        self.best_score.set(self.user.best_score)
+        self.user.save()
 
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
