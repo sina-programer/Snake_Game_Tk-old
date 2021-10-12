@@ -106,14 +106,6 @@ class Game(tk.Frame):
         self.delay = .15 - (self.level.get() / 100) * 2
         self.bait.set_level(self.level.get())
 
-    def init_menu(self):
-        menu = tk.Menu(self.master)
-        menu.add_command(label='Best scores', command=lambda: dialogs.BestScoresDialog(self.master, self))
-        menu.add_command(label='Setting', command=lambda: dialogs.SettingDialog(self.master, self))
-        menu.add_command(label='About us', command=lambda: dialogs.AboutDialog(self.master))
-
-        return menu
-
     def game_loop(self):
         while True:
             self.update()
@@ -123,6 +115,14 @@ class Game(tk.Frame):
             self.move_snake()
             self.check_energy()
             sleep(self.delay)
+
+    def init_menu(self):
+        menu = tk.Menu(self.master)
+        menu.add_command(label='Best scores', command=lambda: dialogs.BestScoresDialog(self.master, self))
+        menu.add_command(label='Setting', command=lambda: dialogs.SettingDialog(self.master, self))
+        menu.add_command(label='About us', command=lambda: dialogs.AboutDialog(self.master))
+
+        return menu
 
 
 if __name__ == "__main__":

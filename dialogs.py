@@ -46,12 +46,13 @@ class BestScoresDialog(BaseDialog):
 class SettingDialog(BaseDialog):
     def __init__(self, parent, app):
         self.level_var = tk.IntVar()
-        self.level_var.set(self.app.level.get())
-        self.head_color = self.app.snake.color['head']
-        self.body_color = self.app.snake.color['body']
         super(SettingDialog, self).__init__(parent, 'Setting', app)
 
     def body(self, frame):
+        self.level_var.set(self.app.level.get())
+        self.head_color = self.app.snake.color['head']
+        self.body_color = self.app.snake.color['body']
+
         tk.Label(self, text='Level:').place(x=20, y=20)
         tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=2)
 
