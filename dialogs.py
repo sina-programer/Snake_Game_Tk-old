@@ -45,6 +45,7 @@ class BestScoresDialog(BaseDialog):
 
 class SettingDialog(BaseDialog):
     def __init__(self, parent, app):
+        self.need_restart = False
         self.level_var = tk.IntVar()
         super(SettingDialog, self).__init__(parent, 'Setting', app)
 
@@ -83,15 +84,18 @@ class SettingDialog(BaseDialog):
         self.body_color_btn.config(bg=self.body_color)
 
     def apply(self):
-        submit = messagebox.askokcancel('Restart Game', 'Are you sure to restart the game(reset scores)')
-        if submit:
-            self.app.snake.change_head_color(self.head_color)
-            self.app.snake.change_body_color(self.body_color)
-            self.app.set_level(self.level_var.get())
-            self.app.user.head_color = self.app.snake.color['head']
-            self.app.user.body_color = self.app.snake.color['body']
-            self.app.user.save()
+        if self.level_var.get() != self.app.level.get():
+            self.need_restart = True
+
+        if self.need_restart and messagebox.askokcancel('Restart Game', 'Are you sure to restart the game?'):
             self.app.restart()
+
+        self.app.snake.change_head_color(self.head_color)
+        self.app.snake.change_body_color(self.body_color)
+        self.app.set_level(self.level_var.get())
+        self.app.user.head_color = self.app.snake.color['head']
+        self.app.user.body_color = self.app.snake.color['body']
+        self.app.user.save()
 
 
 class AboutDialog(BaseDialog):
