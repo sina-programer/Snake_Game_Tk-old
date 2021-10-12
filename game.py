@@ -5,7 +5,7 @@ from tkinter import messagebox
 import dialogs
 from bait import Bait
 from snake import Snake
-from database import User
+from database import User, Score
 
 
 class Game(tk.Frame):
@@ -13,6 +13,7 @@ class Game(tk.Frame):
         super(Game, self).__init__(master)
 
         self.user = None
+        self.score_t = None
         self.best_score = tk.IntVar()
         self.change_user('Default')
         self.font = ('arial', 20)
@@ -28,7 +29,8 @@ class Game(tk.Frame):
         self.master.config(menu=self.init_menu())
         self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
 
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.head_color, self.user.body_color)
+        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.snake_head_color,
+                           self.user.snake_body_color)
         self.bait = Bait(self.canvas)
         self.set_level(2)
 
@@ -58,8 +60,9 @@ class Game(tk.Frame):
 
         if score > self.best_score.get():
             self.best_score.set(score)
-            self.user.best_score = score
+            self.score_t.best_score = score
             self.user.save()
+            self.score_t.save()
 
         self.energy.set(300 - self.level.get() * 50)
         self.score.set(0)
@@ -68,12 +71,18 @@ class Game(tk.Frame):
 
     def change_user(self, username):
         try:
-            self.user = User.select().where(User.name == username).get()
+            self.user = User.get(name=username)
         except:
-            self.user = User(name=username, best_score=0, head_color='black', body_color='grey')
+            self.user = User(name=username, snake_head_color='black', snake_body_color='grey')
 
-        self.best_score.set(self.user.best_score)
+        try:
+            self.score_t = Score.get(user=self.user)
+        except:
+            self.score_t = Score(user=self.user, best_score=0, level_of_best_score=1)
+
+        self.best_score.set(self.score_t.best_score)
         self.user.save()
+        self.score_t.save()
 
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():

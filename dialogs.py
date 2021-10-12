@@ -101,8 +101,8 @@ class SettingDialog(BaseDialog):
 
         self.app.snake.change_head_color(self.head_color)
         self.app.snake.change_body_color(self.body_color)
-        self.app.user.head_color = self.app.snake.color['head']
-        self.app.user.body_color = self.app.snake.color['body']
+        self.app.user.snake_head_color = self.app.snake.color['head']
+        self.app.user.snake_body_color = self.app.snake.color['body']
         self.app.user.save()
 
     def reset(self):
