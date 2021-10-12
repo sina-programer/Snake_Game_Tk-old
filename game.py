@@ -30,7 +30,7 @@ class Game(tk.Frame):
         self.width = 525
         self.height = 525
         self.energy = tk.IntVar()
-        self.energy.set(420)
+        self.energy.set(200)
         self.delay = None
         self.level = tk.IntVar()
         self.master = master
@@ -70,7 +70,7 @@ class Game(tk.Frame):
             self.user.best_score = score
             self.user.save()
 
-        self.energy.set(500 - self.level.get() * 40)
+        self.energy.set(300 - self.level.get() * 50)
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
