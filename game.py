@@ -76,7 +76,8 @@ class Game(tk.Frame):
             self.user.save()
 
         try:
-            score = Score.select().where(Score.user == self.user, Score.level == self.level.get()).order_by(Score.score.desc()).get()
+            score = Score.select().where(Score.user == self.user, Score.level == self.level.get()).order_by(
+                Score.score.desc()).get()
             self.best_score.set(score.best_score)
         except:
             self.best_score.set(0)
