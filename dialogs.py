@@ -3,7 +3,7 @@ import webbrowser
 import tkinter as tk
 from tkinter import simpledialog, colorchooser, messagebox
 
-from database import User
+from database import User, Score
 
 is_windows = sys.platform == 'win32'
 if is_windows:
@@ -31,9 +31,9 @@ class BestScoresDialog(BaseDialog):
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        for user in User.select().order_by(User.best_score):
-            list_box.insert(tk.END, f' {user.name}: {user.best_score}')
-
+        for score in Score.select().where(Score.level == self.app.level.get()).order_by(Score.score.desc()):
+            list_box.insert(tk.END, f' {score.user.username}: {score.score}')
+            
         list_box.configure(yscrollcommand=scrollbar.set)
         scrollbar.configure(command=list_box.yview)
         self.resizable(False, False)
@@ -41,39 +41,34 @@ class BestScoresDialog(BaseDialog):
             winsound.MessageBeep()
 
         return frame
-
+    
 
 class SettingDialog(BaseDialog):
     def __init__(self, parent, app):
         self.need_restart = False
         self.level_var = tk.IntVar()
-        self.user_var = tk.StringVar()
         super(SettingDialog, self).__init__(parent, 'Setting', app)
 
     def body(self, frame):
         self.level_var.set(self.app.level.get())
-        self.user_var.set(self.app.user.name)
         self.head_color = self.app.snake.color['head']
         self.body_color = self.app.snake.color['body']
 
-        tk.Label(self, text='User:').place(x=20, y=20)
-        tk.Entry(self, textvariable=self.user_var, width=17).place(x=60, y=22)
+        tk.Label(self, text='Level:').place(x=20, y=20)
+        tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=2)
 
-        tk.Label(self, text='Level:').place(x=20, y=60)
-        tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=42)
-
-        tk.Label(self, text='Snake Head Color:').place(x=25, y=105)
+        tk.Label(self, text='Snake Head Color:').place(x=25, y=55)
         self.head_color_btn = tk.Button(self, bg=self.head_color, width=2, command=self.set_head_color)
-        self.head_color_btn.place(x=135, y=105)
+        self.head_color_btn.place(x=135, y=55)
 
-        tk.Label(self, text='Snake Body Color:').place(x=25, y=145)
+        tk.Label(self, text='Snake Body Color:').place(x=25, y=95)
         self.body_color_btn = tk.Button(self, bg=self.body_color, width=2, command=self.set_body_color)
-        self.body_color_btn.place(x=135, y=145)
+        self.body_color_btn.place(x=135, y=95)
 
-        tk.Button(self, text='Reset', width=10, command=self.reset).place(x=15, y=195)
-        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=105, y=195)
+        tk.Button(self, text='Reset', width=10, command=self.reset).place(x=15, y=145)
+        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=105, y=145)
 
-        self.geometry('200x240')
+        self.geometry('200x200')
         self.resizable(False, False)
         self.bind('<Return>', lambda _: self.apply())
         self.bind('<Escape>', lambda _: self.reset())
@@ -81,6 +76,22 @@ class SettingDialog(BaseDialog):
             winsound.MessageBeep()
 
         return frame
+
+    def apply(self):
+        if self.level_var.get() != self.app.level.get():
+            self.need_restart = True
+
+        if self.need_restart and messagebox.askokcancel(
+                'Restart Game', 'Are you sure to restart the game?(scores will saved)'):
+            self.app.restart()
+            self.app.set_level(self.level_var.get())
+            self.app.update_best_score()
+
+        self.app.snake.change_head_color(self.head_color)
+        self.app.snake.change_body_color(self.body_color)
+        self.app.user.snake_head_color = self.app.snake.color['head']
+        self.app.user.snake_body_color = self.app.snake.color['body']
+        self.app.user.save()
 
     def set_head_color(self):
         self.head_color = colorchooser.askcolor(initialcolor=self.head_color)[1]
@@ -90,28 +101,12 @@ class SettingDialog(BaseDialog):
         self.body_color = colorchooser.askcolor(initialcolor=self.body_color)[1]
         self.body_color_btn.config(bg=self.body_color)
 
-    def apply(self):
-        if self.level_var.get() != self.app.level.get() or self.user_var.get() != self.app.user.name:
-            self.need_restart = True
-
-        if self.need_restart and messagebox.askokcancel('Restart Game', 'Are you sure to restart the game?'):
-            self.app.change_user(self.user_var.get())
-            self.app.set_level(self.level_var.get())
-            self.app.restart()
-
-        self.app.snake.change_head_color(self.head_color)
-        self.app.snake.change_body_color(self.body_color)
-        self.app.user.snake_head_color = self.app.snake.color['head']
-        self.app.user.snake_body_color = self.app.snake.color['body']
-        self.app.user.save()
-
     def reset(self):
         self.head_color = self.app.snake.color['head']
         self.body_color = self.app.snake.color['body']
         self.head_color_btn.config(bg=self.head_color)
         self.body_color_btn.config(bg=self.body_color)
         self.level_var.set(self.app.level.get())
-        self.user_var.set(self.app.user.name)
 
 
 class AboutDialog(BaseDialog):
