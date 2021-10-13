@@ -16,7 +16,8 @@ This is snake game with Tkinter in python!
 - Game over when the collision with self
 - The energy required for moving
 - Show best scores
-- Save the best score for each user
+- Save the scores for each user individually
+- Save the scores for each level individually
 - Personalization in setting
 - Select user
 
