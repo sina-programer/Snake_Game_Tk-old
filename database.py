@@ -5,7 +5,7 @@ db.connect()
 
 
 class User(pw.Model):
-    name = pw.CharField(unique=True)
+    username = pw.CharField(unique=True)
     snake_head_color = pw.CharField(7)
     snake_body_color = pw.CharField(7)
 
@@ -15,8 +15,9 @@ class User(pw.Model):
 
 class Score(pw.Model):
     user = pw.ForeignKeyField(User)
+    score = pw.IntegerField()
+    level = pw.IntegerField()
     best_score = pw.IntegerField()
-    level_of_best_score = pw.IntegerField()
 
     class Meta:
         database = db

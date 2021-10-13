@@ -12,26 +12,28 @@ class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
 
-        self.user = None
-        self.score_t = None
-        self.best_score = tk.IntVar()
-        self.change_user('Default')
         self.font = ('arial', 20)
-        self.score = tk.IntVar()
-        self.score.set(0)
-        self.width = 525
-        self.height = 525
+        self.best_score = tk.IntVar()
         self.energy = tk.IntVar()
-        self.energy.set(200)
-        self.delay = None
         self.level = tk.IntVar()
+        self.score = tk.IntVar()
         self.master = master
-        self.master.config(menu=self.init_menu())
-        self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
+        self.height = 525
+        self.width = 525
+        self.delay = None
+        self.user = None
 
+        self.score.set(0)
+        self.level.set(2)
+        self.energy.set(200)
+        self.change_user('Default')
+        self.master.config(menu=self.init_menu())
+
+        self.canvas = tk.Canvas(self, bg='lightblue', width=self.width, height=self.height)
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.snake_head_color,
                            self.user.snake_body_color)
         self.bait = Bait(self.canvas)
+
         self.set_level(2)
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
@@ -57,13 +59,10 @@ class Game(tk.Frame):
 
     def restart(self):
         score = self.score.get()
-
         if score > self.best_score.get():
             self.best_score.set(score)
-            self.score_t.best_score = score
-            self.user.save()
-            self.score_t.save()
 
+        Score(user=self.user, score=score, level=self.level.get(), best_score=self.best_score.get()).save()
         self.energy.set(300 - self.level.get() * 50)
         self.score.set(0)
         self.snake.reset()
@@ -71,18 +70,19 @@ class Game(tk.Frame):
 
     def change_user(self, username):
         try:
-            self.user = User.get(name=username)
+            self.user = User.get(username=username)
         except:
-            self.user = User(name=username, snake_head_color='black', snake_body_color='grey')
+            self.user = User.create(username=username, snake_head_color='black', snake_body_color='grey')
+            self.user.save()
 
         try:
-            self.score_t = Score.get(user=self.user)
+            score = Score.select().where(Score.user == self.user, Score.level == self.level.get()).order_by(
+                Score.score.desc()).get()
         except:
-            self.score_t = Score(user=self.user, best_score=0, level_of_best_score=1)
+            score = Score.create(user=self.user, level=self.level.get(), score=0, best_score=0)
+            score.save()
 
-        self.best_score.set(self.score_t.best_score)
-        self.user.save()
-        self.score_t.save()
+        self.best_score.set(score.best_score)
 
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
