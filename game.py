@@ -76,13 +76,10 @@ class Game(tk.Frame):
             self.user.save()
 
         try:
-            score = Score.select().where(Score.user == self.user, Score.level == self.level.get()).order_by(
-                Score.score.desc()).get()
+            score = Score.select().where(Score.user == self.user, Score.level == self.level.get()).order_by(Score.score.desc()).get()
+            self.best_score.set(score.best_score)
         except:
-            score = Score.create(user=self.user, level=self.level.get(), score=0, best_score=0)
-            score.save()
-
-        self.best_score.set(score.best_score)
+            self.best_score.set(0)
 
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
