@@ -5,7 +5,8 @@ db.connect()
 
 
 class User(pw.Model):
-    username = pw.CharField(unique=True)
+    username = pw.CharField()
+    password = pw.CharField()
     snake_head_color = pw.CharField(7)
     snake_body_color = pw.CharField(7)
 

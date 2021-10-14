@@ -1,4 +1,5 @@
 import sys
+import hashlib
 import webbrowser
 import tkinter as tk
 from tkinter import simpledialog, colorchooser, messagebox
@@ -21,6 +22,95 @@ class BaseDialog(simpledialog.Dialog):
         pass
 
 
+class SignupDialog(BaseDialog):
+    def __init__(self, parent, app):
+        self.user_var = tk.StringVar()
+        self.pass_var = tk.StringVar()
+        self.show_pass_state = tk.StringVar()
+        super(SignupDialog, self).__init__(parent, 'Sign up', app)
+
+    def body(self, frame):
+        tk.Label(frame, text='Username:').grid(row=0, column=0, pady=5)
+        tk.Entry(frame, textvariable=self.user_var).grid(row=0, column=1, pady=5)
+
+        tk.Label(frame, text='Password:').grid(row=1, column=0, pady=5)
+        self.pass_field = tk.Entry(frame, textvariable=self.pass_var, show='*')
+        self.pass_field.grid(row=1, column=1, pady=5)
+        self.show_pass_state.set('*')
+        tk.Checkbutton(frame, text='Show password', variabl=self.show_pass_state, onvalue='', offvalue='*',
+                       command=lambda *args: self.pass_field.config(show=self.show_pass_state.get())).grid(row=2,
+                                                                                                           column=1,
+                                                                                                           pady=5)
+
+        tk.Button(frame, text='Sign up', width=10, command=self.signup).grid(row=3, column=1, pady=5)
+
+        self.geometry('250x150')
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+    def signup(self):
+        username = self.user_var.get()
+        password = self.pass_var.get()
+        password = hashlib.sha256(password.encode()).hexdigest()
+        for user in User.select():
+            if user.username == username:
+                messagebox.showwarning('Invalid user!', 'User already exists!')
+                break
+        else:
+            User(username=username, password=password, snake_head_color='black', snake_body_color='grey').save()
+            messagebox.showinfo('Sign up', 'Your account successfully created! \nnow you most login')
+
+
+class SigninDialog(BaseDialog):
+    def __init__(self, parent, app):
+        self.user_var = tk.StringVar()
+        self.pass_var = tk.StringVar()
+        self.show_pass_state = tk.StringVar()
+        super(SigninDialog, self).__init__(parent, 'Sign in', app)
+
+    def body(self, frame):
+        tk.Label(frame, text='Username:').grid(row=0, column=0, pady=5)
+        tk.Entry(frame, textvariable=self.user_var).grid(row=0, column=1, pady=5)
+
+        tk.Label(frame, text='Password:').grid(row=1, column=0, pady=5)
+        self.pass_field = tk.Entry(frame, textvariable=self.pass_var, show='*')
+        self.pass_field.grid(row=1, column=1, pady=5)
+        self.show_pass_state.set('*')
+        tk.Checkbutton(frame, text='Show password', variabl=self.show_pass_state, onvalue='', offvalue='*',
+                       command=lambda *args: self.pass_field.config(show=self.show_pass_state.get())).grid(row=2,
+                                                                                                           column=1,
+                                                                                                           pady=5)
+
+        tk.Button(frame, text='Sign in', width=10, command=self.signin).grid(row=3, column=1, pady=5)
+
+        self.geometry('250x150')
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+    def signin(self):
+        username = self.user_var.get()
+        password = self.pass_var.get()
+        password = hashlib.sha256(password.encode()).hexdigest()
+        try:
+            user = User.get(username=username)
+            if user.password == password:
+                self.app.restart()
+                self.app.change_user(user.username)
+                messagebox.showinfo('Login', 'You successfully login!')
+
+            else:
+                messagebox.showwarning('Invalid password', 'Your password is incorrect!')
+
+        except:
+            messagebox.showwarning('Invalid user!', 'Please enter a valid user!')
+
+
 class BestScoresDialog(BaseDialog):
     def __init__(self, parent, app):
         super(BestScoresDialog, self).__init__(parent, 'Best scores', app)
@@ -33,7 +123,7 @@ class BestScoresDialog(BaseDialog):
 
         for score in Score.select().where(Score.level == self.app.level.get()).order_by(Score.score.desc()):
             list_box.insert(tk.END, f' {score.user.username}: {score.score}')
-            
+
         list_box.configure(yscrollcommand=scrollbar.set)
         scrollbar.configure(command=list_box.yview)
         self.resizable(False, False)
@@ -41,7 +131,7 @@ class BestScoresDialog(BaseDialog):
             winsound.MessageBeep()
 
         return frame
-    
+
 
 class SettingDialog(BaseDialog):
     def __init__(self, parent, app):

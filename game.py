@@ -72,7 +72,7 @@ class Game(tk.Frame):
         try:
             self.user = User.get(username=username)
         except:
-            self.user = User.create(username=username, snake_head_color='black', snake_body_color='grey')
+            self.user = User.create(username=username, password='', snake_head_color='black', snake_body_color='grey')
             self.user.save()
 
         self.update_best_score()
@@ -128,6 +128,12 @@ class Game(tk.Frame):
 
     def init_menu(self):
         menu = tk.Menu(self.master)
+
+        account_menu = tk.Menu(menu, tearoff=False)
+        account_menu.add_command(label='Sign in', command=lambda: dialogs.SigninDialog(self.master, self))
+        account_menu.add_command(label='Sign up', command=lambda: dialogs.SignupDialog(self.master, self))
+
+        menu.add_cascade(label='Account setting', menu=account_menu)
         menu.add_command(label='Best scores', command=lambda: dialogs.BestScoresDialog(self.master, self))
         menu.add_command(label='Setting', command=lambda: dialogs.SettingDialog(self.master, self))
         menu.add_command(label='About us', command=lambda: dialogs.AboutDialog(self.master))
