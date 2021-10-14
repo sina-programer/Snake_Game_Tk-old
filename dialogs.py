@@ -82,7 +82,7 @@ class SettingDialog(BaseDialog):
             self.need_restart = True
 
         if self.need_restart and messagebox.askokcancel(
-                'Restart Game', 'Are you sure to restart the game?(scores will saved)'):
+                'Restart Game', 'Are you sure to restart the game?(score will saved)'):
             self.app.restart()
             self.app.set_level(self.level_var.get())
             self.app.update_best_score()
