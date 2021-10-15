@@ -132,6 +132,7 @@ class Game(tk.Frame):
         account_menu = tk.Menu(menu, tearoff=False)
         account_menu.add_command(label='Sign in', command=lambda: dialogs.SigninDialog(self.master, self))
         account_menu.add_command(label='Sign up', command=lambda: dialogs.SignupDialog(self.master, self))
+        account_menu.add_command(label='Manage Account', command=lambda: dialogs.ManageAccountDialog(self.master, self))
 
         menu.add_cascade(label='Account setting', menu=account_menu)
         menu.add_command(label='Best scores', command=lambda: dialogs.BestScoresDialog(self.master, self))

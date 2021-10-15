@@ -23,6 +23,44 @@ class BaseDialog(simpledialog.Dialog):
         pass
 
 
+class ChangeUsernameDialog(BaseDialog):
+    def __init__(self, parent, app):
+        super(ChangeUsernameDialog, self).__init__(parent, 'Change Username', app)
+
+    def body(self, frame):
+        # widgets
+
+        return frame
+
+
+class ManageAccountDialog(BaseDialog):
+    def __init__(self, parent, app):
+        self.user_var = tk.StringVar()
+        super(ManageAccountDialog, self).__init__(parent, 'Manage Account', app)
+
+    def body(self, frame):
+        self.user_var.set(self.app.user.username)
+        if self.user_var.get() == 'Default':
+            status = 'disabled'
+        else:
+            status = 'normal'
+
+        tk.Label(frame, text='Username:').grid(row=0, column=0)
+        tk.Label(frame, textvariable=self.user_var).grid(row=0, column=1)
+
+        '''
+        tk.Button(frame, text='Change username', state=status, 
+            command=lambda: ChangeUsernameDialog(self.parent, self.app))
+        '''
+
+        self.geometry('300x200')
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+
 class SignupDialog(BaseDialog):
     def __init__(self, parent, app):
         self.show_pass_state = tk.StringVar()
