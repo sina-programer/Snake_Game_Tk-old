@@ -13,6 +13,7 @@ if is_windows:
 
 class BaseDialog(simpledialog.Dialog):
     def __init__(self, parent, title, app=None):
+        self.parent = parent
         if app:
             self.app = app
 
@@ -25,26 +26,39 @@ class BaseDialog(simpledialog.Dialog):
 class SignupDialog(BaseDialog):
     def __init__(self, parent, app):
         self.user_var = tk.StringVar()
-        self.pass_var = tk.StringVar()
         self.show_pass_state = tk.StringVar()
+        self.password = tk.StringVar()
+        self.password.trace('w', lambda *args: self.check_confirm())
+        self.confirm_pass = tk.StringVar()
+        self.confirm_pass.trace('w', lambda *args: self.check_confirm())
         super(SignupDialog, self).__init__(parent, 'Sign up', app)
 
     def body(self, frame):
-        tk.Label(frame, text='Username:').grid(row=0, column=0, pady=5)
-        tk.Entry(frame, textvariable=self.user_var).grid(row=0, column=1, pady=5)
+        tk.Label(frame, text='Username:').grid(row=0, column=1, pady=5)
+        tk.Entry(frame, textvariable=self.user_var).grid(row=0, column=2, pady=5)
 
-        tk.Label(frame, text='Password:').grid(row=1, column=0, pady=5)
-        self.pass_field = tk.Entry(frame, textvariable=self.pass_var, show='*')
-        self.pass_field.grid(row=1, column=1, pady=5)
+        tk.Label(frame, text='Password:').grid(row=1, column=1, pady=5)
+        self.pass_field = tk.Entry(frame, show='*', textvariable=self.password)
+        self.pass_field.grid(row=1, column=2, pady=5)
+
+        tk.Label(frame, text='Confirm password:').grid(row=2, column=0, columnspan=2, pady=5)
+        self.confirm_pass_field = tk.Entry(frame, show='*', textvariable=self.confirm_pass)
+        self.confirm_pass_field.grid(row=2, column=2, pady=5)
+
         self.show_pass_state.set('*')
         tk.Checkbutton(frame, text='Show password', variabl=self.show_pass_state, onvalue='', offvalue='*',
-                       command=lambda *args: self.pass_field.config(show=self.show_pass_state.get())).grid(row=2,
-                                                                                                           column=1,
-                                                                                                           pady=5)
+                       command=lambda *args: self.confirm_pass_field.config(show=self.show_pass_state.get())).grid(
+            row=3, column=0, columnspan=2, pady=3)
 
-        tk.Button(frame, text='Sign up', width=10, command=self.signup).grid(row=3, column=1, pady=5)
+        self.state_label = tk.Label(frame)
+        self.state_label.grid(row=3, column=2, pady=3)
 
-        self.geometry('250x150')
+        tk.Button(frame, text='Sign in', width=10, command=self.signin).grid(
+            row=4, column=0, columnspan=2, pady=5)
+        self.signup_btn = tk.Button(frame, text='Sign up', width=10, state='disabled', command=self.signup)
+        self.signup_btn.grid(row=4, column=2, pady=5)
+
+        self.geometry('270x180')
         self.resizable(False, False)
         if is_windows:
             winsound.MessageBeep()
@@ -53,7 +67,7 @@ class SignupDialog(BaseDialog):
 
     def signup(self):
         username = self.user_var.get()
-        password = self.pass_var.get()
+        password = self.pass_field.get()
         password = hashlib.sha256(password.encode()).hexdigest()
         for user in User.select():
             if user.username == username:
@@ -63,6 +77,20 @@ class SignupDialog(BaseDialog):
             User(username=username, password=password, snake_head_color='black', snake_body_color='grey').save()
             messagebox.showinfo('Sign up', 'Your account successfully created! \nnow you most login')
 
+    def check_confirm(self):
+        password = self.password.get()
+        confirm_password = self.confirm_pass.get()
+        if password == confirm_password:
+            self.state_label.config(text='match!', fg='green')
+            self.signup_btn.config(state='normal')
+        else:
+            self.state_label.config(text='not match!', fg='red')
+            self.signup_btn.config(state='disabled')
+
+    def signin(self):
+        self.destroy()
+        SigninDialog(self.parent, self.app)
+ 
 
 class SigninDialog(BaseDialog):
     def __init__(self, parent, app):
