@@ -17,7 +17,7 @@ class BaseDialog(simpledialog.Dialog):
         if app:
             self.app = app
 
-        super(BaseDialog, self).__init__(parent, title)
+        super(BaseDialog, self).__init__(self.parent, title)
 
     def buttonbox(self):
         pass
@@ -25,8 +25,8 @@ class BaseDialog(simpledialog.Dialog):
 
 class SignupDialog(BaseDialog):
     def __init__(self, parent, app):
-        self.user_var = tk.StringVar()
         self.show_pass_state = tk.StringVar()
+        self.username = tk.StringVar()
         self.password = tk.StringVar()
         self.password.trace('w', lambda *args: self.check_confirm())
         self.confirm_pass = tk.StringVar()
@@ -35,11 +35,10 @@ class SignupDialog(BaseDialog):
 
     def body(self, frame):
         tk.Label(frame, text='Username:').grid(row=0, column=1, pady=5)
-        tk.Entry(frame, textvariable=self.user_var).grid(row=0, column=2, pady=5)
+        tk.Entry(frame, textvariable=self.username).grid(row=0, column=2, pady=5)
 
         tk.Label(frame, text='Password:').grid(row=1, column=1, pady=5)
-        self.pass_field = tk.Entry(frame, show='*', textvariable=self.password)
-        self.pass_field.grid(row=1, column=2, pady=5)
+        tk.Entry(frame, show='*', textvariable=self.password).grid(row=1, column=2, pady=5)
 
         tk.Label(frame, text='Confirm password:').grid(row=2, column=0, columnspan=2, pady=5)
         self.confirm_pass_field = tk.Entry(frame, show='*', textvariable=self.confirm_pass)
@@ -66,8 +65,8 @@ class SignupDialog(BaseDialog):
         return frame
 
     def signup(self):
-        username = self.user_var.get()
-        password = self.pass_field.get()
+        username = self.username.get()
+        password = self.password.get()
         password = hashlib.sha256(password.encode()).hexdigest()
         for user in User.select():
             if user.username == username:
@@ -90,7 +89,7 @@ class SignupDialog(BaseDialog):
     def signin(self):
         self.destroy()
         SigninDialog(self.parent, self.app)
- 
+
 
 class SigninDialog(BaseDialog):
     def __init__(self, parent, app):
@@ -112,6 +111,7 @@ class SigninDialog(BaseDialog):
                                                                                                            column=1,
                                                                                                            pady=5)
 
+        tk.Button(frame, text='Sign up', width=10, command=self.signup).grid(row=3, column=0, pady=5)
         tk.Button(frame, text='Sign in', width=10, command=self.signin).grid(row=3, column=1, pady=5)
 
         self.geometry('250x150')
@@ -138,6 +138,10 @@ class SigninDialog(BaseDialog):
         except:
             messagebox.showwarning('Invalid user!', 'Please enter a valid user!')
 
+    def signup(self):
+        self.destroy()
+        SignupDialog(self.parent, self.app)
+
 
 class BestScoresDialog(BaseDialog):
     def __init__(self, parent, app):
@@ -148,9 +152,14 @@ class BestScoresDialog(BaseDialog):
         list_box.pack(side=tk.LEFT)
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        counter = 0
 
         for score in Score.select().where(Score.level == self.app.level.get()).order_by(Score.score.desc()):
             list_box.insert(tk.END, f' {score.user.username}: {score.score}')
+            if counter > 20:
+                break
+            else:
+                counter += 1
 
         list_box.configure(yscrollcommand=scrollbar.set)
         scrollbar.configure(command=list_box.yview)
