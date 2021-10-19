@@ -119,21 +119,39 @@ class ManageAccountDialog(BaseDialog):
         else:
             status = 'normal'
 
-        tk.Label(self, text='Username:').place(x=10, y=10)
-        tk.Label(self, textvariable=self.user_var).place(x=70, y=10)
+        tk.Label(frame, text='Username:').grid(row=0, column=1)
+        tk.Label(frame, textvariable=self.user_var).grid(row=0, column=2)
 
-        tk.Button(self, text='Change username', state=status, width=15,
-                  command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).place(x=170, y=50)
-        tk.Button(self, text='Change password', state=status, width=15,
-                  command=lambda: ChangePasswordDialog(self.parent, self.app)).place(x=170, y=85)
+        tk.Button(frame, text='Change username', state=status, width=15,
+                  command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).grid(
+            row=1, column=3, pady=5)
+        tk.Button(frame, text='Change password', state=status, width=15,
+                  command=lambda: ChangePasswordDialog(self.parent, self.app)).grid(row=2, column=3, pady=5)
+        tk.Button(frame, text='Reset scores', state=status, width=15,
+                  command=self.reset_scores).grid(row=1, column=0, pady=5)
+        tk.Button(frame, text='Delete account', state=status, width=15,
+                  command=self.delete_account).grid(row=2, column=0, pady=5)
 
-        self.geometry('300x200')
         self.resizable(False, False)
         if is_windows:
             winsound.MessageBeep()
 
         return frame
 
+    def reset_scores(self):
+        submit = messagebox.askokcancel('Reset Scores', 'Are you sure to reset all scores?')
+        if submit:
+            Score.delete().where(Score.user == self.app.user).execute()
+            self.app.best_score.set(0)
+            messagebox.showinfo('Reset Scores', 'Reset all your scores successfully!')
+
+    def delete_account(self):
+        submit = messagebox.askokcancel('Delete Account', 'Are you sure to delete your account?')
+        if submit:
+            User.delete().where(User.username == self.app.user.username).execute()
+            self.app.change_user('Default')
+            self.destroy()
+            messagebox.showinfo('Delete account', 'Delete your account successfully!')
 
 class SignupDialog(BaseDialog):
     def __init__(self, parent, app):
