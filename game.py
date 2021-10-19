@@ -61,8 +61,9 @@ class Game(tk.Frame):
         score = self.score.get()
         if score > self.best_score.get():
             self.best_score.set(score)
+        if score:
+            Score(user=self.user, score=score, level=self.level.get(), best_score=self.best_score.get()).save()
 
-        Score(user=self.user, score=score, level=self.level.get(), best_score=self.best_score.get()).save()
         self.energy.set(300 - self.level.get() * 50)
         self.score.set(0)
         self.snake.reset()

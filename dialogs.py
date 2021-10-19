@@ -24,13 +24,38 @@ class BaseDialog(simpledialog.Dialog):
 
 
 class ChangeUsernameDialog(BaseDialog):
-    def __init__(self, parent, app):
+    def __init__(self, parent, app, variable=None):
+        self.variable = variable  # variable for change username in manage account dialog after change username
+        self.user_var = tk.StringVar()
         super(ChangeUsernameDialog, self).__init__(parent, 'Change Username', app)
 
     def body(self, frame):
-        # widgets
+        tk.Label(self, text='New Username:').place(x=20, y=15)
+        tk.Entry(self, textvariable=self.user_var).place(x=115, y=17)
+        tk.Button(self, text='Change', width=12, command=self.change_username).place(x=130, y=50)
+
+        self.geometry('270x90')
+        self.resizable(False, False)
+        self.bind('<Return>', lambda _: self.change_username())
+        if is_windows:
+            winsound.MessageBeep()
 
         return frame
+
+    def change_username(self):
+        new_user = self.user_var.get()
+        old_username = self.app.user.username
+        if new_user.strip():
+            if new_user != old_username:
+                if self.variable:
+                    self.variable.set(new_user)
+                self.app.user.username = new_user
+                self.app.user.save()
+                messagebox.showinfo('Change Username', f'Your username changed from {old_username} to {new_user}')
+            else:
+                messagebox.showwarning('ERROR', "You can't change your username to the current username!")
+        else:
+            messagebox.showwarning('ERROR', 'Username field is empty!')
 
 
 class ManageAccountDialog(BaseDialog):
@@ -45,13 +70,11 @@ class ManageAccountDialog(BaseDialog):
         else:
             status = 'normal'
 
-        tk.Label(frame, text='Username:').grid(row=0, column=0)
-        tk.Label(frame, textvariable=self.user_var).grid(row=0, column=1)
+        tk.Label(self, text='Username:').place(x=10, y=10)
+        tk.Label(self, textvariable=self.user_var).place(x=70, y=10)
 
-        '''
-        tk.Button(frame, text='Change username', state=status, 
-            command=lambda: ChangeUsernameDialog(self.parent, self.app))
-        '''
+        tk.Button(self, text='Change username', state=status, width=15,
+                  command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).place(x=170, y=50)
 
         self.geometry('300x200')
         self.resizable(False, False)
