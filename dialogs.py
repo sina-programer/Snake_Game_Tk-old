@@ -23,6 +23,55 @@ class BaseDialog(simpledialog.Dialog):
         pass
 
 
+class ChangePasswordDialog(BaseDialog):
+    def __init__(self, parent, app):
+        self.show_pass_state = tk.StringVar()
+        self.old_password = tk.StringVar()
+        self.new_password = tk.StringVar()
+        self.confirm_pass = tk.StringVar()
+        super(ChangePasswordDialog, self).__init__(parent, 'Change Password', app)
+
+    def body(self, frame):
+        tk.Label(frame, text='Old Password:').grid(row=0, column=1, pady=5)
+        tk.Entry(frame, textvariable=self.old_password).grid(row=0, column=2, pady=5)
+
+        tk.Label(frame, text='New Password:').grid(row=1, column=1, pady=5)
+        tk.Entry(frame, show='*', textvariable=self.new_password).grid(row=1, column=2, pady=5)
+
+        tk.Label(frame, text='Confirm password:').grid(row=2, column=0, columnspan=2, pady=5)
+        self.confirm_pass_field = tk.Entry(frame, show='*', textvariable=self.confirm_pass)
+        self.confirm_pass_field.grid(row=2, column=2, pady=5)
+
+        self.show_pass_state.set('*')
+        tk.Checkbutton(frame, text='Show password', variabl=self.show_pass_state, onvalue='', offvalue='*',
+                       command=lambda *args: self.confirm_pass_field.config(show=self.show_pass_state.get())).grid(
+            row=3, column=0, columnspan=2, pady=3)
+
+        tk.Button(frame, text='Change Password', width=15, command=self.change_password).grid(row=3, column=2, pady=5)
+
+        self.geometry('270x150')
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+    def change_password(self):
+        old_password = self.old_password.get()
+        new_password = self.new_password.get()
+        confirm_pass = self.confirm_pass.get()
+        if self.app.user.password == hashlib.sha256(old_password.encode()).hexdigest():
+            if new_password == confirm_pass:
+                new_password = hashlib.sha256(new_password.encode()).hexdigest()
+                self.app.user.password = new_password
+                self.app.user.save()
+                messagebox.showinfo('Change Password', 'Your password successfully changed!')
+            else:
+                messagebox.showwarning('ERROR', 'Passwords not match!')
+        else:
+            messagebox.showwarning('ERROR', 'Your password is incorrect!')
+
+
 class ChangeUsernameDialog(BaseDialog):
     def __init__(self, parent, app, variable=None):
         self.variable = variable  # variable for change username in manage account dialog after change username
@@ -75,6 +124,8 @@ class ManageAccountDialog(BaseDialog):
 
         tk.Button(self, text='Change username', state=status, width=15,
                   command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).place(x=170, y=50)
+        tk.Button(self, text='Change password', state=status, width=15,
+                  command=lambda: ChangePasswordDialog(self.parent, self.app)).place(x=170, y=85)
 
         self.geometry('300x200')
         self.resizable(False, False)
