@@ -119,8 +119,8 @@ class ManageAccountDialog(BaseDialog):
         else:
             status = 'normal'
 
-        tk.Label(frame, text='Username:').grid(row=0, column=1)
-        tk.Label(frame, textvariable=self.user_var).grid(row=0, column=2)
+        tk.Label(frame, text='Username:').grid(row=0, column=1, pady=5)
+        tk.Label(frame, textvariable=self.user_var).grid(row=0, column=2, pady=5)
 
         tk.Button(frame, text='Change username', state=status, width=15,
                   command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).grid(
@@ -148,10 +148,12 @@ class ManageAccountDialog(BaseDialog):
     def delete_account(self):
         submit = messagebox.askokcancel('Delete Account', 'Are you sure to delete your account?')
         if submit:
+            Score.delete().where(Score.user == self.app.user).execute()
             User.delete().where(User.username == self.app.user.username).execute()
             self.app.change_user('Default')
             self.destroy()
             messagebox.showinfo('Delete account', 'Delete your account successfully!')
+
 
 class SignupDialog(BaseDialog):
     def __init__(self, parent, app):
