@@ -121,6 +121,7 @@ class ManageAccountDialog(BaseDialog):
 
         tk.Label(frame, text='Username:').grid(row=0, column=1, pady=5)
         tk.Label(frame, textvariable=self.user_var).grid(row=0, column=2, pady=5)
+        tk.Button(frame, text='Records', command=self.show_records, width=8).grid(row=1, column=1, columnspan=2)
 
         tk.Button(frame, text='Change username', state=status, width=15,
                   command=lambda: ChangeUsernameDialog(self.parent, self.app, self.user_var)).grid(
@@ -153,6 +154,16 @@ class ManageAccountDialog(BaseDialog):
             self.app.change_user('Default')
             self.destroy()
             messagebox.showinfo('Delete account', 'Delete your account successfully!')
+
+    @staticmethod
+    def show_records():
+        result = 'Your records: \n\n'
+        for level in [1,2,3]:
+            for score in Score.select().where(Score.level == level).order_by(Score.score.desc()):
+                result += f'Level {level}:  {score.score}\n'
+                break
+
+        messagebox.showinfo('Records', result)
 
 
 class SignupDialog(BaseDialog):
