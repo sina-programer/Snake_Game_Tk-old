@@ -91,17 +91,12 @@ class Game(tk.Frame):
             messagebox.showinfo('You loss', 'You loss')
             self.restart()
 
-    def move_snake(self):
-        self.snake.move_head()
-        self.snake.delete_unuse_move_history(self.snake.history_of_move, len(self.snake.body))
-        self.snake.save_move(self.snake.get_position(self.snake.head))
-
     def check_eating_bait(self):
         if self.snake.get_position(self.snake.head) == self.bait.get_position():
             self.bait.move()
             self.energy.set(self.energy.get() + 30)
             self.score.set(self.score.get() + 1)
-            self.snake.add_body(len(self.snake.body))
+            self.snake.grow()
 
     def check_energy(self):
         energy = self.energy.get()
@@ -123,7 +118,7 @@ class Game(tk.Frame):
             self.bait.check_auto_move()
             self.check_eating_bait()
             self.check_head_and_body_collision()
-            self.move_snake()
+            self.snake.auto_move()
             self.check_energy()
             sleep(self.delay)
 
@@ -147,6 +142,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title('Snake Game')
     root.geometry('540x600+440+130')
+    root.resizable(False, False)
     root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
