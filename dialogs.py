@@ -155,11 +155,11 @@ class ManageAccountDialog(BaseDialog):
             self.destroy()
             messagebox.showinfo('Delete account', 'Delete your account successfully!')
 
-    @staticmethod
-    def show_records():
+    def show_records(self):
+        user = self.app.user
         result = 'Your records: \n\n'
         for level in [1,2,3]:
-            for score in Score.select().where(Score.level == level).order_by(Score.score.desc()):
+            for score in Score.select().where(Score.level == level, Score.user == user).order_by(Score.score.desc()):
                 result += f'Level {level}:  {score.score}\n'
                 break
 
