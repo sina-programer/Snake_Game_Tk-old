@@ -158,7 +158,7 @@ class ManageAccountDialog(BaseDialog):
     def show_records(self):
         user = self.app.user
         result = 'Your records: \n\n'
-        for level in [1,2,3]:
+        for level in list(range(1, 4)):
             for score in Score.select().where(Score.level == level, Score.user == user).order_by(Score.score.desc()):
                 result += f'Level {level}:  {score.score}\n'
                 break
@@ -384,29 +384,17 @@ class AboutDialog(BaseDialog):
         super(AboutDialog, self).__init__(parent, 'About us')
 
     def body(self, frame):
-        tk.Label(self, text='This game made by Sina.f & Mohammad Amini').pack(pady=12)
-        grid_options = {'row': 1, 'padx': 15, 'pady': 15}
+        tk.Label(self, text='This game made by Sina.f').pack(pady=12)
 
-        sina_frame = tk.LabelFrame(self, text='Sina.f')
-        sina_frame.pack(fill=tk.X, pady=5)
-        tk.Button(sina_frame, text='GitHub', width=8,
-                  command=lambda: webbrowser.open('https://github.com/sina-programer')).grid(column=1, **grid_options)
-        tk.Button(sina_frame, text='Instagram', width=8,
-                  command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(column=2,
-                                                                                                    **grid_options)
-        tk.Button(sina_frame, text='Telegram', width=8,
-                  command=lambda: webbrowser.open('https://t.me/sina_programer')).grid(column=3, **grid_options)
+        tk.Button(frame, text='GitHub', width=10,
+                  command=lambda: webbrowser.open('https://github.com/sina-programer')).grid(column=1, padx=7)
+        tk.Button(frame, text='Instagram', width=10,
+                  command=lambda: webbrowser.open('https://www.instagram.com/sina.programer')).grid(
+            row=0, column=2, padx=7)
+        tk.Button(frame, text='Telegram', width=10,
+                  command=lambda: webbrowser.open('https://t.me/sina_programer')).grid(row=0, column=3, padx=7)
 
-        mohammad_frame = tk.LabelFrame(self, text='Mohammad Amini')
-        mohammad_frame.pack(fill=tk.X, pady=15)
-        tk.Button(mohammad_frame, text='GitHub', width=8,
-                  command=lambda: webbrowser.open('https://github.com/mohammadaminY')).grid(column=1, **grid_options)
-        tk.Button(mohammad_frame, text='Instagram', width=8,
-                  command=lambda: webbrowser.open('https://www.instagram.com/insta_id')).grid(column=2, **grid_options)
-        tk.Button(mohammad_frame, text='Telegram', width=8,
-                  command=lambda: webbrowser.open('https://t.me/tel_id')).grid(column=3, **grid_options)
-
-        self.geometry('300x240')
+        self.geometry('300x100')
         self.resizable(False, False)
         if is_windows:
             winsound.MessageBeep()
