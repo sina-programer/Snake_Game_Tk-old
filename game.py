@@ -73,7 +73,8 @@ class Game(tk.Frame):
         try:
             self.user = User.get(username=username)
         except:
-            self.user = User.create(username=username, password='', snake_head_color='black', snake_body_color='grey')
+            self.user = User.create(username=username, password='', snake_head_color='black', snake_body_color='grey',
+                                    background_color='#ADD8E6')
             self.user.save()
 
         self.update_best_score()

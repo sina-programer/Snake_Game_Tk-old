@@ -9,6 +9,7 @@ class User(pw.Model):
     password = pw.CharField()
     snake_head_color = pw.CharField(7)
     snake_body_color = pw.CharField(7)
+    background_color = pw.CharField(7)
 
     class Meta:
         database = db

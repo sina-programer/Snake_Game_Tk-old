@@ -323,6 +323,7 @@ class SettingDialog(BaseDialog):
         self.level_var.set(self.app.level.get())
         self.head_color = self.app.snake.color['head']
         self.body_color = self.app.snake.color['body']
+        self.bg_color = self.app.user.background_color
 
         tk.Label(self, text='Level:').place(x=20, y=20)
         tk.Scale(self, from_=1, to=3, variable=self.level_var, orient=tk.HORIZONTAL).place(x=65, y=2)
@@ -335,10 +336,14 @@ class SettingDialog(BaseDialog):
         self.body_color_btn = tk.Button(self, bg=self.body_color, width=2, command=self.set_body_color)
         self.body_color_btn.place(x=135, y=95)
 
-        tk.Button(self, text='Reset', width=10, command=self.reset).place(x=15, y=145)
-        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=105, y=145)
+        tk.Label(self, text='Background Color:').place(x=25, y=141)
+        self.bg_color_btn = tk.Button(self, bg=self.bg_color, width=2, command=self.set_bg_color)
+        self.bg_color_btn.place(x=135, y=140)
 
-        self.geometry('200x200')
+        tk.Button(self, text='Reset', width=10, command=self.reset).place(x=15, y=195)
+        tk.Button(self, text='Apply', width=10, command=self.apply).place(x=105, y=195)
+
+        self.geometry('200x240')
         self.resizable(False, False)
         self.bind('<Return>', lambda _: self.apply())
         self.bind('<Escape>', lambda _: self.reset())
@@ -357,10 +362,12 @@ class SettingDialog(BaseDialog):
             self.app.set_level(self.level_var.get())
             self.app.update_best_score()
 
+        self.app.canvas.config(bg=self.bg_color)
         self.app.snake.change_head_color(self.head_color)
         self.app.snake.change_body_color(self.body_color)
         self.app.user.snake_head_color = self.app.snake.color['head']
         self.app.user.snake_body_color = self.app.snake.color['body']
+        self.app.user.background_color = self.bg_color
         self.app.user.save()
 
     def set_head_color(self):
@@ -371,11 +378,17 @@ class SettingDialog(BaseDialog):
         self.body_color = colorchooser.askcolor(initialcolor=self.body_color)[1]
         self.body_color_btn.config(bg=self.body_color)
 
+    def set_bg_color(self):
+        self.bg_color = colorchooser.askcolor(initialcolor=self.bg_color)[1]
+        self.bg_color_btn.config(bg=self.bg_color)
+
     def reset(self):
         self.head_color = self.app.snake.color['head']
         self.body_color = self.app.snake.color['body']
+        self.bg_color = self.app.user.background_color
         self.head_color_btn.config(bg=self.head_color)
         self.body_color_btn.config(bg=self.body_color)
+        self.bg_color_btn.config(bg=self.bg_color)
         self.level_var.set(self.app.level.get())
 
 
