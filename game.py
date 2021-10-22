@@ -34,7 +34,7 @@ class Game(tk.Frame):
         self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.snake_head_color,
                            self.user.snake_body_color)
         self.bait = Bait(self.canvas)
-        self.update_personalizions()
+        self.update_personalizations()
         self.set_level(2)
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
@@ -80,9 +80,9 @@ class Game(tk.Frame):
 
         self.update_best_score()
         if self.canvas:
-            self.update_personalizions()
+            self.update_personalizations()
 
-    def update_personalizions(self):
+    def update_personalizations(self):
         self.canvas.config(bg=self.user.background_color)
         self.snake.change_head_color(self.user.snake_head_color)
         self.snake.change_body_color(self.user.snake_body_color)

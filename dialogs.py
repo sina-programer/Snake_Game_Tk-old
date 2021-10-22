@@ -362,11 +362,11 @@ class SettingDialog(BaseDialog):
             self.app.set_level(self.level_var.get())
             self.app.update_best_score()
 
-        self.app.user.snake_head_color = self.app.snake.color['head']
-        self.app.user.snake_body_color = self.app.snake.color['body']
+        self.app.user.snake_head_color = self.head_color
+        self.app.user.snake_body_color = self.body_color
         self.app.user.background_color = self.bg_color
         self.app.user.save()
-        self.app.update_personalizions()
+        self.app.update_personalizations()
 
     def set_head_color(self):
         self.head_color = colorchooser.askcolor(initialcolor=self.head_color)[1]
