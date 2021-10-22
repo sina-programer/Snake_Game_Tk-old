@@ -295,11 +295,11 @@ class BestScoresDialog(BaseDialog):
         list_box.pack(side=tk.LEFT)
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        counter = 0
+        counter = 1
 
         for score in Score.select().where(Score.level == self.app.level.get()).order_by(Score.score.desc()):
             list_box.insert(tk.END, f' {score.user.username}: {score.score}')
-            if counter > 20:
+            if counter >= 20:
                 break
             else:
                 counter += 1
