@@ -144,8 +144,8 @@ class Game(tk.Frame):
             if self.snake.direction != 'stop':
                 self.energy.set(energy - 1)
         else:
-            messagebox.showinfo('You loss', 'Your energies finished!')
-            self.restart()
+            self.loss('Your energies finished!')
+            
 
     def set_level(self, level):
         self.level.set(level)
