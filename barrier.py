@@ -1,5 +1,5 @@
-from bait import Bait
+# from bait import Bait
 
 
-class Barrier(Bait):
-    pass
+# class Barrier(Bait):
+#     pass
