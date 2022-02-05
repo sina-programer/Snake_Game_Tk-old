@@ -1,6 +1,7 @@
 import tkinter as tk
 from time import sleep
 from tkinter import messagebox
+import platform
 
 import dialogs
 from bait import Bait
@@ -152,7 +153,8 @@ if __name__ == "__main__":
     root.title('Snake Game')
     root.geometry('540x600+440+130')
     root.resizable(False, False)
-    root.iconbitmap(default='Files/icon.ico')
+    if 'windows' in platform.platform():
+        root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
     game.mainloop()
