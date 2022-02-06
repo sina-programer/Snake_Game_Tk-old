@@ -1,11 +1,16 @@
 import tkinter as tk
 from time import sleep
 from tkinter import messagebox
+import sys
+import random
+from threading import Thread
 
 import dialogs
-from bait import Bait
+# from bait import Bait
+from ba import Ba
 from snake import Snake
 from database import User, Score
+from relation import Relation
 
 
 class Game(tk.Frame):
@@ -23,6 +28,9 @@ class Game(tk.Frame):
         self.width = 525
         self.delay = None
         self.user = None
+        self.is_online = False
+        self.player_name = str(random.randint(10000 , 99999))
+        self.relation = Relation(self.player_name)
 
         self.score.set(0)
         self.level.set(2)
@@ -31,11 +39,16 @@ class Game(tk.Frame):
         self.master.config(menu=self.init_menu())
 
         self.canvas = tk.Canvas(self, width=self.width, height=self.height)
-        self.snake = Snake(self.canvas, self.width / 2, self.height / 2, self.user.snake_head_color,
+        self.snake = Snake(self.canvas, (self.width / 2 - 20, self.height / 2), self.user.snake_head_color,
                            self.user.snake_body_color)
-        self.bait = Bait(self.canvas)
+
+        self.bait = Ba(self.canvas, 'green')
+        self.barrier = Ba(self.canvas, 'red', (25, 25))
+
         self.update_personalizations()
         self.set_level(2)
+
+        
 
         self.canvas.bind('<Left>', lambda _: self.snake.set_direction('left'))
         self.canvas.bind('<Right>', lambda _: self.snake.set_direction('right'))
@@ -58,6 +71,15 @@ class Game(tk.Frame):
 
         self.game_loop()
 
+    def check_collision(self, o1_pos, o1_size, o2_pos, o2_size):
+        if (o1_pos[0] + (o1_size[0]/2) >= o2_pos[0] + (o2_size[0]/2) >= o1_pos[0] - (o1_size[0]/2) or \
+            o1_pos[0] + (o1_size[0]/2) >= o2_pos[0] - (o2_size[0]/2) >= o1_pos[0] - (o1_size[0]/2)) \
+            and \
+            (o1_pos[1] + (o1_size[1]/2) >= o2_pos[1] + (o2_size[1]/2) >= o1_pos[1] - (o1_size[1]/2) or \
+            o1_pos[1] + (o1_size[1]/2) >= o2_pos[1] - (o2_size[1]/2) >= o1_pos[1] - (o1_size[1]/2)):
+            return True
+        return False
+
     def restart(self):
         score = self.score.get()
         if score > self.best_score.get():
@@ -69,6 +91,7 @@ class Game(tk.Frame):
         self.score.set(0)
         self.snake.reset()
         self.bait.reset()
+        self.barrier.reset()
 
     def change_user(self, username):
         try:
@@ -95,17 +118,31 @@ class Game(tk.Frame):
         except:
             self.best_score.set(0)
 
+
+    def loss(self, message='You loss'):
+        messagebox.showinfo('You loss', message)
+        self.restart()
+
     def check_head_and_body_collision(self):
         if len(self.snake.body) > 1 and self.snake.check_collision_head_and_body():
-            messagebox.showinfo('You loss', 'You loss')
-            self.restart()
+            self.loss()
 
     def check_eating_bait(self):
-        if self.snake.get_position(self.snake.head) == self.bait.get_position():
+        if self.check_collision(self.bait.get_position(), self.bait.size,
+                            self.snake.get_position(self.snake.head),
+                            self.snake.size):
+        # if self.snake.get_position(self.snake.head) == self.bait.get_position():
             self.bait.move()
             self.energy.set(self.energy.get() + 30)
             self.score.set(self.score.get() + 1)
             self.snake.grow()
+
+    def check_barrier_collision(self):
+        if self.check_collision(self.barrier.get_position(), self.barrier.size,
+                            self.snake.get_position(self.snake.head),
+                            self.snake.size):
+        # if self.snake.get_position(self.snake.head) == self.barrier.get_position():
+            self.loss()
 
     def check_energy(self):
         energy = self.energy.get()
@@ -113,22 +150,47 @@ class Game(tk.Frame):
             if self.snake.direction != 'stop':
                 self.energy.set(energy - 1)
         else:
-            messagebox.showinfo('You loss', 'Your energies finished!')
-            self.restart()
+            self.loss('Your energies finished!')
+            
 
     def set_level(self, level):
         self.level.set(level)
         self.delay = .15 - (self.level.get() / 100) * 2
         self.bait.set_level(self.level.get())
+        self.barrier.set_level(self.level.get() * 3)
+
+    def start_online(self):
+        self.psnake = Snake(self.canvas, (self.width / 2 + 20, self.height / 2), 'red', 'red')
+        self.is_online = True
+
+    def play(self, player):
+        status = self.relation.check_for_play()
+        if status == 0:
+            messagebox.showinfo("We can't play.")
+        elif status == 2:
+            messagebox.showinfo("Server don't send response.")
+        elif status == 1:       
+            Thread(target=self.start_online)
+
+    def move_p(self):
+        while True:
+            pos = self.relation.get_pos()
+            if not pos: break
+            self.psnake.move(self.psnake, *pos)
+            sleep(self.delay)
+        messagebox.showinfo('end game', 'end game')
 
     def game_loop(self):
         while True:
             self.update()
             self.bait.check_auto_move()
+            self.barrier.check_auto_move()
             self.check_eating_bait()
+            self.check_barrier_collision()
             self.check_head_and_body_collision()
             self.snake.auto_move()
-            self.check_energy()
+            if not self.is_online: self.check_energy()
+
             sleep(self.delay)
 
     def init_menu(self):
@@ -143,6 +205,7 @@ class Game(tk.Frame):
         menu.add_command(label='Best scores', command=lambda: dialogs.BestScoresDialog(self.master, self))
         menu.add_command(label='Setting', command=lambda: dialogs.SettingDialog(self.master, self))
         menu.add_command(label='About us', command=lambda: dialogs.AboutDialog(self.master))
+        menu.add_command(label='Online', command=lambda: dialogs.OnlineDialog(self.master, self.play, self.player_name, self.relation))
 
         return menu
 
@@ -152,7 +215,8 @@ if __name__ == "__main__":
     root.title('Snake Game')
     root.geometry('540x600+440+130')
     root.resizable(False, False)
-    root.iconbitmap(default='Files/icon.ico')
+    if 'win' in sys.platform:
+        root.iconbitmap(default='Files/icon.ico')
 
     game = Game(root)
     game.mainloop()

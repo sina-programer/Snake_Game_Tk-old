@@ -1,10 +1,10 @@
 class Snake:
-    def __init__(self, canvas, x, y, head_color='black', body_color='grey'):
-        self.size = 15
+    def __init__(self, canvas, pos, head_color='black', body_color='grey'):
+        self.size = (15, 15)
         self.body = []
         self.canvas = canvas
         self._direction = 'stop'
-        self.start_position = x, y
+        self.start_position = pos
         self.color = {'head': head_color, 'body': body_color}
         self.aims = {
             'stop': None,
@@ -13,10 +13,11 @@ class Snake:
             'left': (-15, 0),
             'right': (15, 0)
         }
-        self.head = self.canvas.create_rectangle(x - self.size / 2,
-                                                 y - self.size / 2,
-                                                 x + self.size / 2,
-                                                 y + self.size / 2,
+        x, y = pos
+        self.head = self.canvas.create_rectangle(x - self.size[0] / 2,
+                                                 y - self.size[1] / 2,
+                                                 x + self.size[0] / 2,
+                                                 y + self.size[1] / 2,
                                                  fill=self.color['head'])
 
     def auto_move(self):
@@ -36,18 +37,18 @@ class Snake:
         aim = self.aims[self.direction]
         x -= aim[0]
         y -= aim[1]
-        self.body.append(self.canvas.create_rectangle(x - self.size / 2,
-                                                      y - self.size / 2,
-                                                      x + self.size / 2,
-                                                      y + self.size / 2,
+        self.body.append(self.canvas.create_rectangle(x - self.size[0] / 2,
+                                                      y - self.size[1] / 2,
+                                                      x + self.size[0] / 2,
+                                                      y + self.size[1] / 2,
                                                       fill=self.color['body']))
 
     def reset(self):
         self.canvas.delete(self.head)
-        self.head = self.canvas.create_rectangle(self.start_position[0] - self.size / 2,
-                                                 self.start_position[1] - self.size / 2,
-                                                 self.start_position[0] + self.size / 2,
-                                                 self.start_position[1] + self.size / 2,
+        self.head = self.canvas.create_rectangle(self.start_position[0] - self.size[0] / 2,
+                                                 self.start_position[1] - self.size[1] / 2,
+                                                 self.start_position[0] + self.size[0] / 2,
+                                                 self.start_position[1] + self.size[1] / 2,
                                                  fill=self.color['head'])
         self.direction = 'stop'
         for body in self.body:

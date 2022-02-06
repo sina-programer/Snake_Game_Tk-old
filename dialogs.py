@@ -3,8 +3,10 @@ import hashlib
 import webbrowser
 import tkinter as tk
 from tkinter import simpledialog, colorchooser, messagebox
+from threading import Thread
 
 from database import User, Score
+import relation
 
 is_windows = sys.platform == 'win32'
 if is_windows:
@@ -411,3 +413,34 @@ class AboutDialog(BaseDialog):
             winsound.MessageBeep()
 
         return frame
+
+
+
+class OnlineDialog(BaseDialog):
+    def __init__(self, parent, play, player_name, relation):
+        self.player_name = player_name
+        self.relation = relation
+        self.play = play
+        super(OnlineDialog, self).__init__(parent, 'Online')
+
+    def body(self, frame):
+        tk.Label(frame, text='Waiting for players').grid(row=0, column=0, pady=5)
+        Thread(target=self.find_player, args=(frame,)).start()
+
+        self.geometry('270x150')
+        self.resizable(False, False)
+        if is_windows:
+            winsound.MessageBeep()
+
+        return frame
+
+    def find_player(self, frame):
+        if not self.relation.is_connected:
+            if self.relation.connect():
+                players = self.relation.wait_for_play(self.player_name)
+                for n, player in enumerate(players):
+                    tk.Button(frame, text=player, width=15, command=lambda b:self.play(b.text)).grid(row=n+1, column=0, pady=5)
+                else:
+                    tk.Label(frame, text="Server don't send response maybe player not exist.").grid(row=1, column=0, pady=5)
+            else:
+                messagebox.showerror("can't connect.")
